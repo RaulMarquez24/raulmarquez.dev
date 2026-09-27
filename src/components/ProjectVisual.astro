@@ -14,6 +14,7 @@ interface Props {
   project: Project;
   variant: 'preview' | 'hero';
   class?: string;
+  /** Pairs this cover with another page's for a view-transition morph. */
   transitionName?: string;
 }
 
@@ -33,7 +34,7 @@ const sources: { src: ImageMetadata; theme?: string }[] = cover
 const style = [
   cover && `--cover-bg: ${cover.background}`,
   cover?.backgroundDark && `--cover-bg-dark: ${cover.backgroundDark}`,
-  transitionName && `view-transition-name: ${transitionName}`,
+  transitionName && `view-transition-name: ${transitionName}; view-transition-class: cover`,
 ]
   .filter(Boolean)
   .join('; ');

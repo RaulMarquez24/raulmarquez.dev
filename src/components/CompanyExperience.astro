@@ -18,7 +18,7 @@ const { group, locale } = Astro.props;
 const modeKey = { remote: 'mode.remote', hybrid: 'mode.hybrid', onsite: 'mode.onsite' } as const;
 ---
 
-<li class="grid gap-2 border-b border-line py-6 sm:grid-cols-[14rem_1fr] sm:gap-8">
+<li class="reveal grid gap-2 border-b border-line py-6 sm:grid-cols-[14rem_1fr] sm:gap-8">
   <p class="meta text-fg-subtle">
     {formatPeriod(group.start, group.end, locale)}
     <br />

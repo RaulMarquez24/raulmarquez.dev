@@ -30,18 +30,18 @@ const education = await getEducation();
     </PageHeader>
 
     <section aria-labelledby="cv-experience" class="mt-16">
-      <SectionHeader id="cv-experience" title={t(locale, 'cv.experience')} />
+      <SectionHeader id="cv-experience" title={t(locale, 'cv.experience')} class="reveal" />
       <ol>
         {companies.map((group) => <CompanyExperience group={group} locale={locale} />)}
       </ol>
     </section>
 
     <section aria-labelledby="cv-education" class="mt-16">
-      <SectionHeader id="cv-education" title={t(locale, 'cv.education')} />
+      <SectionHeader id="cv-education" title={t(locale, 'cv.education')} class="reveal" />
       <ol>
         {
           education.map((item) => (
-            <li class="grid gap-2 border-b border-line py-6 sm:grid-cols-[14rem_1fr] sm:gap-8">
+            <li class="reveal grid gap-2 border-b border-line py-6 sm:grid-cols-[14rem_1fr] sm:gap-8">
               <p class="meta text-fg-subtle">{formatPeriod(item.data.start ?? item.data.end, item.data.end, locale)}</p>
               <div>
                 <h3 class="font-medium">{pick(item.data.title, locale)}</h3>

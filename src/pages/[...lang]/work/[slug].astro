@@ -64,8 +64,12 @@ const facts = [
   <article class="container-page">
     <PageHeader title={data.title} eyebrow={data.category} lead={data.summary}>
       <Fragment slot="before">
-        <a href={`${localizePath('/', locale)}#work`} class="meta text-fg-subtle transition-colors hover:text-fg">
-          ← {t(locale, 'work.back')}
+        <a
+          href={`${localizePath('/', locale)}#work`}
+          class="group meta inline-flex items-center gap-1.5 text-fg-subtle transition-colors hover:text-fg"
+        >
+          <span aria-hidden="true" class="transition-transform duration-300 ease-out-expo group-hover:-translate-x-1">←</span>
+          {t(locale, 'work.back')}
         </a>
         <div class="mt-10">{data.draft && <Badge class="mb-4">{t(locale, 'work.draft')}</Badge>}</div>
       </Fragment>
@@ -78,7 +82,7 @@ const facts = [
       transitionName={`cover-${slug}`}
     />
 
-    <dl class="meta mt-12 grid gap-6 border-y border-line py-6 sm:grid-cols-3">
+    <dl class="reveal meta mt-12 grid gap-6 border-y border-line py-6 sm:grid-cols-3">
       {
         facts.map((fact) => (
           <div>

@@ -1,0 +1,51 @@
+---
+import { type Locale, t } from '../i18n/ui';
+
+/**
+ * The contact email as a mailto link, plus a button that copies it with a visible and announced
+ * confirmation. The button only appears where the Clipboard API exists.
+ */
+interface Props {
+  email: string;
+  locale: Locale;
+}
+
+const { email, locale } = Astro.props;
+---
+
+<p data-copy-email class="flex flex-wrap items-center gap-x-4 gap-y-2">
+  <a href={`mailto:${email}`} class="link text-xl">{email}</a>
+  <button
+    type="button"
+    hidden
+    data-copy-value={email}
+    aria-label={t(locale, 'contact.copyLabel')}
+    class="meta rounded-md border border-line px-2.5 py-1 text-fg-muted transition-colors hover:border-fg-subtle hover:text-fg"
+  >
+    {t(locale, 'contact.copy')}
+  </button>
+  <span data-copy-status data-done={t(locale, 'contact.copied')} role="status" class="meta text-accent"></span>
+</p>
+
+<script>
+  for (const block of document.querySelectorAll<HTMLElement>('[data-copy-email]')) {
+    const button = block.querySelector<HTMLButtonElement>('button[data-copy-value]');
+    const status = block.querySelector<HTMLElement>('[data-copy-status]');
+    if (!button || !status || !navigator.clipboard) continue;
+
+    let timer = 0;
+    button.hidden = false;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset.copyValue ?? '');
+      } catch {
+        return;
+      }
+      status.textContent = status.dataset.done ?? '';
+      clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        status.textContent = '';
+      }, 2400);
+    });
+  }
+</script>

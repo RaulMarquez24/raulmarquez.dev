@@ -8,6 +8,78 @@
   navigation: auto;
 }
 
+/* A project cover morphing from the work-list preview into the case-study hero. */
+::view-transition-group(*.cover) {
+  animation-duration: 550ms;
+  animation-timing-function: var(--ease-out-expo);
+}
+
+/* Theme switch: the new theme is revealed by a circle from the toggle (Header.astro), so the
+   default cross-fade is off and the whole page is one layer. */
+:root[data-theme-switching]::view-transition-old(root),
+:root[data-theme-switching]::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+:root[data-theme-switching] * {
+  view-transition-name: none !important;
+}
+
+/* Entrance of page openings: add `rise`, and `[--rise:1]`, `[--rise:2]`… to stagger. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 0.75rem;
+  }
+}
+
+/* Scroll reveal: blocks settle into place as they enter the viewport. */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    translate: 0 1.25rem;
+  }
+}
+
+/* The "active now" dot pulses a few times after the page opens, then rests. */
+@keyframes ping {
+  from {
+    opacity: 0.6;
+  }
+
+  80%,
+  to {
+    opacity: 0;
+    scale: 3;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .status-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    opacity: 0;
+    animation: ping 1.8s cubic-bezier(0, 0, 0.2, 1) 1.2s 3;
+  }
+
+  .rise {
+    animation: rise 900ms var(--ease-out-expo) calc(var(--rise, 0) * 90ms) both;
+  }
+
+  /* Tied to scroll position, not time: no JS, nothing hidden where unsupported. */
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal var(--ease-out-expo) both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 20%;
+    }
+  }
+}
+
 /* Light/dark image variants (ProjectVisual `srcDark`). Unlayered on purpose: no utility can override it. */
 [data-theme="dark"] .theme-light-only,
 [data-theme="light"] .theme-dark-only {
@@ -99,6 +171,15 @@
 
   [data-theme="dark"] .project-cover {
     background-color: var(--cover-bg-dark, var(--cover-bg, transparent));
+  }
+
+  .status-dot {
+    position: relative;
+    flex: none;
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 9999px;
+    background: var(--signal);
   }
 
   .skip-link {

@@ -5,8 +5,8 @@ import ProjectVisual from './ProjectVisual.astro';
 import WorkRow from './WorkRow.astro';
 
 /**
- * Selected-work list. With a mouse, hovering a row shows the project's visual
- * (screenshot or generative cover) floating next to the cursor. Hidden on touch;
+ * Selected-work list. With a mouse, hovering a row shows the project's cover floating next to
+ * the cursor; opening that project morphs the cover into the case-study hero. Hidden on touch;
  * no easing with reduced motion.
  */
 interface Props {
@@ -29,13 +29,12 @@ const { projects, locale } = Astro.props;
   >
     {
       projects.map((project, index) => (
-        <div data-cover={index} class="absolute inset-0 opacity-0 transition-opacity duration-300">
-          <ProjectVisual
-            project={project}
-            variant="preview"
-            class="size-full"
-            transitionName={project.data.externalUrl ? undefined : `cover-${projectSlug(project)}`}
-          />
+        <div
+          data-cover={index}
+          data-transition={project.data.externalUrl ? undefined : `cover-${projectSlug(project)}`}
+          class="absolute inset-0 opacity-0 transition-opacity duration-300"
+        >
+          <ProjectVisual project={project} variant="preview" class="size-full rounded-md" />
         </div>
       ))
     }
@@ -53,6 +52,8 @@ const { projects, locale } = Astro.props;
     const position = { x: 0, y: 0 };
     let scale = 0.92;
     let visible = false;
+    let active = -1;
+    let opened = -1;
     let frame = 0;
 
     const place = (event: PointerEvent) => {
@@ -76,10 +77,12 @@ const { projects, locale } = Astro.props;
       if (!frame) frame = requestAnimationFrame(render);
     };
 
-    for (const row of list.querySelectorAll<HTMLElement>('[data-work-row]')) {
+    for (const row of list.querySelectorAll<HTMLAnchorElement>('[data-work-row]')) {
+      const index = Number(row.dataset.workRow);
+
       row.addEventListener('pointerenter', (event) => {
         if (event.pointerType !== 'mouse') return;
-        const index = Number(row.dataset.workRow);
+        active = index;
         covers.forEach((cover, i) => {
           cover.style.opacity = i === index ? '1' : '0';
         });
@@ -97,13 +100,42 @@ const { projects, locale } = Astro.props;
         place(event);
         start();
       });
+      row.addEventListener('click', (event) => {
+        const plain = event.button === 0 && !(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey);
+        opened = plain && !row.target ? index : -1;
+      });
     }
 
-    list.addEventListener('pointerleave', () => {
+    const hide = () => {
       visible = false;
+      active = -1;
       preview.style.opacity = '0';
       preview.dataset.visible = 'false';
       start();
+    };
+
+    list.addEventListener('pointerleave', hide);
+
+    // Only the cover on show is named for the view transition, at the moment of leaving:
+    // a hidden cover never takes part, and coming back to this page morphs nothing.
+    window.addEventListener('pageswap', (event) => {
+      if (!event.viewTransition || !visible || opened !== active) return;
+      const name = covers[opened]?.dataset.transition;
+      const cover = covers[opened]?.querySelector<HTMLElement>('.project-cover');
+      if (!name || !cover) return;
+      cover.style.setProperty('view-transition-name', name);
+      cover.style.setProperty('view-transition-class', 'cover');
+    });
+
+    // Back from the case study (back/forward cache): start clean.
+    window.addEventListener('pageshow', (event) => {
+      if (!event.persisted) return;
+      for (const cover of preview.querySelectorAll<HTMLElement>('.project-cover')) {
+        cover.style.removeProperty('view-transition-name');
+        cover.style.removeProperty('view-transition-class');
+      }
+      opened = -1;
+      hide();
     });
   }
 </script>

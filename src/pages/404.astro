@@ -5,11 +5,11 @@ import Base from '../layouts/Base.astro';
 
 <Base locale="es" path="/404" title={t('es', 'notFound.title')} alternates={[]} noindex>
   <div class="container-page pt-24 sm:pt-32">
-    <p class="meta text-accent">404</p>
-    <h1 class="mt-4 text-title">{t('es', 'notFound.title')}</h1>
-    <p class="mt-6 text-fg-muted">{t('es', 'notFound.text')}</p>
-    <p class="mt-2 text-fg-subtle" lang="en">{t('en', 'notFound.text')}</p>
-    <p class="meta mt-10 flex gap-6">
+    <p class="rise meta text-accent">404</p>
+    <h1 class="rise mt-4 text-title [--rise:1]">{t('es', 'notFound.title')}</h1>
+    <p class="rise mt-6 text-fg-muted [--rise:2]">{t('es', 'notFound.text')}</p>
+    <p class="rise mt-2 text-fg-subtle [--rise:2]" lang="en">{t('en', 'notFound.text')}</p>
+    <p class="rise meta mt-10 flex gap-6 [--rise:3]">
       <a href={localizePath('/', 'es')} class="link">{t('es', 'nav.home')}</a>
       <a href={localizePath('/', 'en')} lang="en" class="link">{t('en', 'nav.home')}</a>
     </p>

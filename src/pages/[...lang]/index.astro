@@ -1,4 +1,5 @@
 ---
+import CopyEmail from '../../components/CopyEmail.astro';
 import SectionHeader from '../../components/SectionHeader.astro';
 import DotField from '../../components/signature/DotField.astro';
 import WorkList from '../../components/WorkList.astro';
@@ -39,30 +40,30 @@ const workRange = firstYear && firstYear < currentYear ? `${firstYear} — ${cur
   <section class="relative isolate">
     <DotField />
     <div class="container-page flex min-h-[68svh] flex-col justify-center pt-10 pb-24 sm:min-h-[74svh]">
-      <p class="meta flex items-center gap-2 text-fg-muted">
-        <span class="size-1.5 rounded-full bg-signal" aria-hidden="true"></span>
+      <p class="rise meta flex items-center gap-2 text-fg-muted">
+        <span class="status-dot" aria-hidden="true"></span>
         {status} · {pick(profile.location, locale)}
       </p>
-      <h1 class="mt-6 max-w-[14ch] text-display text-balance">{pick(profile.headline, locale)}</h1>
-      <p class="mt-6 max-w-xl text-lead text-pretty text-fg-muted">
+      <h1 class="rise mt-6 max-w-[14ch] text-display text-balance [--rise:1]">{pick(profile.headline, locale)}</h1>
+      <p class="rise mt-6 max-w-xl text-lead text-pretty text-fg-muted [--rise:2]">
         {profile.name}. {pick(profile.intro, locale)}
       </p>
     </div>
   </section>
 
   <section id="work" aria-labelledby="work-title" class="container-page scroll-mt-8">
-    <SectionHeader id="work-title" title={t(locale, 'home.selectedWork')}>
+    <SectionHeader id="work-title" title={t(locale, 'home.selectedWork')} class="reveal">
       {workRange && <span>{workRange}</span>}
     </SectionHeader>
     <WorkList projects={projects} locale={locale} />
   </section>
 
   <section aria-labelledby="principles-title" class="container-page mt-(--space-section)">
-    <SectionHeader id="principles-title" title={t(locale, 'home.principles')} />
+    <SectionHeader id="principles-title" title={t(locale, 'home.principles')} class="reveal" />
     <ul class="grid gap-10 pt-8 sm:grid-cols-2">
       {
         principles.map((principle) => (
-          <li>
+          <li class="reveal">
             <h3 class="text-subheading">{pick(principle.data.title, locale)}</h3>
             <p class="mt-2 leading-relaxed text-fg-muted">{pick(principle.data.body, locale)}</p>
           </li>
@@ -72,13 +73,16 @@ const workRange = firstYear && firstYear < currentYear ? `${firstYear} — ${cur
   </section>
 
   <section aria-labelledby="experience-title" class="container-page mt-(--space-section)">
-    <SectionHeader id="experience-title" title={t(locale, 'home.experience')}>
-      <a href={localizePath('/cv', locale)} class="transition-colors hover:text-fg">{t(locale, 'home.fullCv')} ↗</a>
+    <SectionHeader id="experience-title" title={t(locale, 'home.experience')} class="reveal">
+      <a href={localizePath('/cv', locale)} class="group inline-flex items-center gap-1.5 transition-colors hover:text-fg">
+        {t(locale, 'home.fullCv')}
+        <span aria-hidden="true" class="transition-transform duration-300 ease-out-expo group-hover:translate-x-1">→</span>
+      </a>
     </SectionHeader>
     <ul>
       {
         companies.map((group) => (
-          <li class="grid grid-cols-[1fr_auto] items-baseline gap-4 border-b border-line py-4">
+          <li class="reveal grid grid-cols-[1fr_auto] items-baseline gap-4 border-b border-line py-4">
             <div>
               <p>{group.company}</p>
               <p class="mt-1 text-fg-subtle">
@@ -102,11 +106,11 @@ const workRange = firstYear && firstYear < currentYear ? `${firstYear} — ${cur
     </ul>
   </section>
 
-  <section aria-labelledby="contact-title" class="container-page mt-(--space-section)">
+  <section aria-labelledby="contact-title" class="reveal container-page mt-(--space-section)">
     <h2 id="contact-title" class="text-heading">{t(locale, 'home.contact')}</h2>
     <p class="mt-4 max-w-lg text-fg-muted">{t(locale, 'home.contactText')}</p>
-    <p class="mt-6">
-      <a href={`mailto:${profile.email}`} class="link text-xl">{profile.email}</a>
-    </p>
+    <div class="mt-6">
+      <CopyEmail email={profile.email} locale={locale} />
+    </div>
   </section>
 </Base>

@@ -11,8 +11,8 @@ const { title, eyebrow, lead } = Astro.props;
 
 <header class="pt-16 sm:pt-24">
   <slot name="before" />
-  {eyebrow && <p class="meta text-fg-subtle">{eyebrow}</p>}
-  <h1 class:list={['text-title text-balance', eyebrow && 'mt-3']}>{title}</h1>
-  {lead && <p class="mt-6 max-w-2xl text-lead text-pretty text-fg-muted">{lead}</p>}
-  <slot />
+  {eyebrow && <p class="rise meta text-fg-subtle">{eyebrow}</p>}
+  <h1 class:list={['rise text-title text-balance [--rise:1]', eyebrow && 'mt-3']}>{title}</h1>
+  {lead && <p class="rise mt-6 max-w-2xl text-lead text-pretty text-fg-muted [--rise:2]">{lead}</p>}
+  {Astro.slots.has('default') && <div class="rise [--rise:3]"><slot /></div>}
 </header>

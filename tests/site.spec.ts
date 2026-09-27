@@ -15,6 +15,8 @@ for (const { prefix, lang } of locales) {
     const url = `${prefix}${route}`;
 
     test(`${url} renders with lang, canonical, one h1 and no a11y violations`, async ({ page }) => {
+      // axe audits the settled page: entrance and scroll animations would catch text mid-fade.
+      await page.emulateMedia({ reducedMotion: 'reduce' });
       const response = await page.goto(url);
       expect(response?.status()).toBe(200);
       await expect(page.locator('html')).toHaveAttribute('lang', lang);
@@ -168,8 +170,59 @@ test('the Renterus logo swaps variant with the theme', async ({ page, isMobile }
   expect(await display('img.theme-light-only')).toBe('none');
 
   await page.getByRole('button', { name: 'Cambiar tema' }).click();
-  expect(await display('img.theme-light-only')).not.toBe('none');
+  await expect.poll(() => display('img.theme-light-only')).not.toBe('none');
   expect(await display('img.theme-dark-only')).toBe('none');
+});
+
+test('opening a project from its preview morphs only that cover', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'The hover preview only exists with a mouse');
+  // Logs the view-transition names on the page once loaded, and again at the moment of leaving
+  // it (listening from `load` on, so the page's own pageswap handlers have already run).
+  await page.addInitScript(() => {
+    const report = (moment: string) => {
+      const names = [...document.querySelectorAll('*')]
+        .map((element) => getComputedStyle(element).viewTransitionName)
+        .filter((name) => name !== 'none' && name !== 'root');
+      console.log(`${moment}:${names.join(',')}`);
+    };
+    addEventListener('load', () => {
+      report('load');
+      addEventListener('pageswap', () => report('pageswap'));
+    });
+  });
+  const reports: string[] = [];
+  page.on('console', (message) => reports.push(message.text()));
+
+  await page.goto('/');
+  const row = page.locator('[data-work-row="1"]');
+  await row.scrollIntoViewIfNeeded();
+  const box = await row.boundingBox();
+  if (!box) throw new Error('work row not rendered');
+  await page.mouse.move(box.x + 200, box.y + box.height / 2);
+  await expect(page.locator('[data-work-preview]')).toHaveAttribute('data-visible', 'true');
+
+  await page.mouse.click(box.x + 200, box.y + box.height / 2);
+  await expect(page).toHaveURL(/\/work\/traindia\/$/);
+  await expect
+    .poll(() => reports.filter((line) => /^(load|pageswap):/.test(line)))
+    .toEqual(['load:', 'pageswap:cover-traindia', 'load:cover-traindia']);
+});
+
+test('with motion, openings and scroll reveals settle fully visible', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('h1')).toHaveCSS('opacity', '1');
+
+  const contact = page.locator('section[aria-labelledby="contact-title"]');
+  await contact.scrollIntoViewIfNeeded();
+  await expect(contact).toHaveCSS('opacity', '1');
+});
+
+test('the contact email can be copied, with a confirmation', async ({ page }) => {
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Copiar el email' }).click();
+  await expect(page.getByRole('status')).toHaveText('Copiado');
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('me@raulmarquez.dev');
 });
 
 test('with reduced motion the dot field still renders', async ({ browser }) => {
@@ -207,7 +260,11 @@ test('theme is dark by default, toggles, persists and stays accessible', async (
 
   await page.getByRole('button', { name: 'Cambiar tema' }).click();
   await expect(html).toHaveAttribute('data-theme', 'light');
+  await expect
+    .poll(() => html.evaluate((root) => root.hasAttribute('data-theme-switching')))
+    .toBe(false);
 
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.reload();
   await expect(html).toHaveAttribute('data-theme', 'light');
 

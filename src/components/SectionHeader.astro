@@ -3,12 +3,13 @@
 interface Props {
   id: string;
   title: string;
+  class?: string;
 }
 
-const { id, title } = Astro.props;
+const { id, title, class: className } = Astro.props;
 ---
 
-<div class="meta flex items-baseline justify-between gap-4 border-b border-line pb-3 text-fg-subtle">
+<div class:list={['meta flex items-baseline justify-between gap-4 border-b border-line pb-3 text-fg-subtle', className]}>
   <h2 id={id}>{title}</h2>
   <slot />
 </div>
