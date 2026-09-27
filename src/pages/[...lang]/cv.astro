@@ -2,7 +2,7 @@
 import CompanyExperience from '../../components/CompanyExperience.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import SectionHeader from '../../components/SectionHeader.astro';
-import { type Locale, localeStaticPaths, pick, t } from '../../i18n/ui';
+import { type Locale, localeStaticPaths, localizePath, pick, t } from '../../i18n/ui';
 import Base from '../../layouts/Base.astro';
 import { getEducation, getExperienceByCompany, getProfile } from '../../lib/content';
 import { formatPeriod } from '../../lib/dates';
@@ -19,6 +19,14 @@ const { locale } = Astro.props;
 const profile = await getProfile();
 const companies = await getExperienceByCompany();
 const education = await getEducation();
+
+// Printed from this page at build time (scripts/cv-pdf.mjs), to the path this link declares.
+const pdf = {
+  href: `${localizePath('/', locale)}cv.pdf`,
+  filename: `${profile.fullName.normalize('NFD').replace(/[̀-ͯ]/g, '').replaceAll(' ', '-')}-CV.pdf`,
+};
+const site = Astro.site?.host ?? '';
+const bare = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
 ---
 
 <Base locale={locale} path="/cv" title={t(locale, 'cv.title')}>
@@ -27,21 +35,38 @@ const education = await getEducation();
       <p class="meta mt-4 text-fg-muted">
         {pick(profile.role, locale)} · {profile.company.name} · {pick(profile.location, locale)}
       </p>
+      <ul class="meta mt-3 flex flex-wrap gap-x-5 gap-y-1 text-fg-muted">
+        <li><a href={`mailto:${profile.email}`} class="link">{profile.email}</a></li>
+        <li class="hidden print:list-item"><a href={Astro.site?.href} class="link">{site}</a></li>
+        {
+          profile.links.map((link) => (
+            <li>
+              <a href={link.url} target="_blank" rel="me noopener" class="link">
+                <span class="print:hidden">{link.label}</span>
+                <span class="hidden print:inline">{bare(link.url)}</span>
+              </a>
+            </li>
+          ))
+        }
+        <li class="print:hidden">
+          <a href={pdf.href} download={pdf.filename} data-cv-pdf class="link">{t(locale, 'cv.download')}</a>
+        </li>
+      </ul>
     </PageHeader>
 
-    <section aria-labelledby="cv-experience" class="mt-16">
+    <section aria-labelledby="cv-experience" class="mt-16 print:mt-8">
       <SectionHeader id="cv-experience" title={t(locale, 'cv.experience')} class="reveal" />
       <ol>
         {companies.map((group) => <CompanyExperience group={group} locale={locale} />)}
       </ol>
     </section>
 
-    <section aria-labelledby="cv-education" class="mt-16">
+    <section aria-labelledby="cv-education" class="mt-16 print:mt-8">
       <SectionHeader id="cv-education" title={t(locale, 'cv.education')} class="reveal" />
       <ol>
         {
           education.map((item) => (
-            <li class="reveal grid gap-2 border-b border-line py-6 sm:grid-cols-[14rem_1fr] sm:gap-8">
+            <li class="reveal grid gap-2 border-b border-line py-6 sm:grid-cols-[14rem_1fr] sm:gap-8 print:break-inside-avoid print:py-4">
               <p class="meta text-fg-subtle">{formatPeriod(item.data.start ?? item.data.end, item.data.end, locale)}</p>
               <div>
                 <h3 class="font-medium">{pick(item.data.title, locale)}</h3>

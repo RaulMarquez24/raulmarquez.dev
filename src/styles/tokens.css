@@ -4,19 +4,9 @@
  * Text colours are WCAG-checked on --bg (ratios in comments) and stay AA on --bg-elevated.
  */
 
+/* Light is the base so print (and the CV PDF) is always light; the dark theme only exists on screen.
+   <html> ships with data-theme="dark", so dark is still the default on screen. */
 :root,
-[data-theme="dark"] {
-  color-scheme: dark;
-  --bg: oklch(0.155 0.003 286);
-  --bg-elevated: oklch(0.2 0.004 286);
-  --fg: oklch(0.945 0.003 286); /* 16.6:1 */
-  --fg-muted: oklch(0.72 0.006 286); /* 7.9:1 */
-  --fg-subtle: oklch(0.6 0.007 286); /* 5.0:1 */
-  --line: oklch(0.28 0.005 286);
-  --accent: oklch(0.72 0.18 40); /* 7.4:1 */
-  --signal: oklch(0.72 0.17 150);
-}
-
 [data-theme="light"] {
   color-scheme: light;
   --bg: oklch(0.985 0.003 85);
@@ -27,6 +17,27 @@
   --line: oklch(0.89 0.004 85);
   --accent: oklch(0.55 0.19 38); /* 5.1:1 */
   --signal: oklch(0.6 0.15 150);
+}
+
+/* Paper is white: an off-white background would print as a tinted box inside the margins. */
+@media print {
+  :root {
+    --bg: oklch(1 0 0);
+  }
+}
+
+@media screen {
+  [data-theme="dark"] {
+    color-scheme: dark;
+    --bg: oklch(0.155 0.003 286);
+    --bg-elevated: oklch(0.2 0.004 286);
+    --fg: oklch(0.945 0.003 286); /* 16.6:1 */
+    --fg-muted: oklch(0.72 0.006 286); /* 7.9:1 */
+    --fg-subtle: oklch(0.6 0.007 286); /* 5.0:1 */
+    --line: oklch(0.28 0.005 286);
+    --accent: oklch(0.72 0.18 40); /* 7.4:1 */
+    --signal: oklch(0.72 0.17 150);
+  }
 }
 
 @theme inline {

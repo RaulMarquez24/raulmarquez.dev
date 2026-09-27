@@ -9,7 +9,7 @@ interface Props {
 const { title, eyebrow, lead } = Astro.props;
 ---
 
-<header class="pt-16 sm:pt-24">
+<header class="pt-16 sm:pt-24 print:pt-0">
   <slot name="before" />
   {eyebrow && <p class="rise meta text-fg-subtle">{eyebrow}</p>}
   <h1 class:list={['rise text-title text-balance [--rise:1]', eyebrow && 'mt-3']}>{title}</h1>

@@ -4,6 +4,7 @@ import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { defaultLocale, type Locale, locales, localeTags, localizePath, pick, t } from '../i18n/ui';
 import { getProfile } from '../lib/content';
+import { OG_HEIGHT, OG_WIDTH, ogImagePath } from '../lib/og';
 import '../styles/global.css';
 
 interface Props {
@@ -29,6 +30,8 @@ const alternateLinks = alternates.map((alt) => ({
   href: new URL(localizePath(path, alt), Astro.site).href,
 }));
 const defaultHref = new URL(localizePath(path, defaultLocale), Astro.site).href;
+// Pages kept out of search (404, drafts) have no preview of their own and share the home one.
+const ogImage = new URL(ogImagePath(noindex ? '/' : path, locale), Astro.site).href;
 
 const personSchema = {
   '@context': 'https://schema.org',
@@ -60,7 +63,13 @@ const personSchema = {
     <meta property="og:description" content={pageDescription} />
     <meta property="og:url" content={canonical.href} />
     <meta property="og:locale" content={localeTags[locale].replace('-', '_')} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content={String(OG_WIDTH)} />
+    <meta property="og:image:height" content={String(OG_HEIGHT)} />
+    <meta property="og:image:alt" content={pageTitle} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
 
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#0b0b0c" media="(prefers-color-scheme: dark)" />
@@ -80,7 +89,7 @@ const personSchema = {
     <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
   </head>
   <body>
-    <a class="skip-link" href="#content">{t(locale, 'skip.content')}</a>
+    <a class="skip-link print:hidden" href="#content">{t(locale, 'skip.content')}</a>
     <Header locale={locale} path={path} alternates={alternates} />
     <main id="content">
       <slot />

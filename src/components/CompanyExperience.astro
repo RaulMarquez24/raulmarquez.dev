@@ -18,7 +18,7 @@ const { group, locale } = Astro.props;
 const modeKey = { remote: 'mode.remote', hybrid: 'mode.hybrid', onsite: 'mode.onsite' } as const;
 ---
 
-<li class="reveal grid gap-2 border-b border-line py-6 sm:grid-cols-[14rem_1fr] sm:gap-8">
+<li class="reveal grid gap-2 border-b border-line py-6 sm:grid-cols-[14rem_1fr] sm:gap-8 print:py-4">
   <p class="meta text-fg-subtle">
     {formatPeriod(group.start, group.end, locale)}
     <br />
@@ -28,10 +28,10 @@ const modeKey = { remote: 'mode.remote', hybrid: 'mode.hybrid', onsite: 'mode.on
   </p>
   <div>
     <h3 class="text-subheading">{group.company}</h3>
-    <ol class="mt-4 space-y-8 border-l border-line">
+    <ol class="mt-4 space-y-8 border-l border-line print:space-y-5">
       {
         group.roles.map((role) => (
-          <li class="relative pl-6">
+          <li class="relative pl-6 print:break-inside-avoid">
             <span
               aria-hidden="true"
               class:list={[

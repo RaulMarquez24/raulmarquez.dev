@@ -27,8 +27,36 @@ for (const { prefix, lang } of locales) {
       const { violations } = await new AxeBuilder({ page }).analyze();
       expect(violations).toEqual([]);
     });
+
+    test(`${url} has its own 1200×630 social preview image`, async ({ page, request }) => {
+      await page.goto(url);
+      const content = await page.locator('meta[property="og:image"]').getAttribute('content');
+      const image = new URL(content ?? '');
+      expect(image.origin).toBe(SITE);
+      expect(image.pathname).toBe(`/og${prefix || '/es'}/${route.slice(1, -1) || 'home'}.png`);
+
+      const response = await request.get(image.pathname);
+      expect(response.status()).toBe(200);
+      expect(response.headers()['content-type']).toBe('image/png');
+      const png = await response.body();
+      expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([1200, 630]);
+    });
   }
 }
+
+test('the CV links to a PDF printed from it, in each language', async ({ page, request }) => {
+  for (const prefix of ['', '/en']) {
+    await page.goto(`${prefix}/cv/`);
+    const link = page.locator('a[data-cv-pdf]');
+    await expect(link).toHaveAttribute('href', `${prefix}/cv.pdf`);
+    await expect(link).toHaveAttribute('download', 'Raul-Marquez-Urbano-CV.pdf');
+
+    const response = await request.get(`${prefix}/cv.pdf`);
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toBe('application/pdf');
+    expect((await response.body()).subarray(0, 5).toString()).toBe('%PDF-');
+  }
+});
 
 /** Every case study whose frontmatter says `draft: true`, read straight from the content files. */
 const drafts = ['es', 'en'].flatMap((locale) => {

@@ -29,8 +29,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
-      - run: pnpm build
+      # Before the build: it prints the CV to PDF with Chromium.
       - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm build
       - run: pnpm test
       - uses: actions/upload-artifact@v4
         if: failure()

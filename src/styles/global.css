@@ -134,6 +134,30 @@
   }
 }
 
+/* Print, and the CV PDF made from it (scripts/cv-pdf.mjs): light palette (tokens.css), no site
+   chrome (`print:hidden`), nothing mid-animation. */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 16mm;
+  }
+
+  html {
+    font-size: 12.5px;
+  }
+
+  .rise,
+  .reveal {
+    animation: none !important;
+  }
+
+  h2,
+  h3,
+  h4 {
+    break-after: avoid;
+  }
+}
+
 /* Page width and side gutters, shared by every section. */
 @utility container-page {
   margin-inline: auto;
