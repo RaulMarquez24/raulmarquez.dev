@@ -1,0 +1,18 @@
+---
+/** Opening of every inner page: optional eyebrow, the page title and an optional lead. */
+interface Props {
+  title: string;
+  eyebrow?: string;
+  lead?: string;
+}
+
+const { title, eyebrow, lead } = Astro.props;
+---
+
+<header class="pt-16 sm:pt-24">
+  <slot name="before" />
+  {eyebrow && <p class="meta text-fg-subtle">{eyebrow}</p>}
+  <h1 class:list={['text-title text-balance', eyebrow && 'mt-3']}>{title}</h1>
+  {lead && <p class="mt-6 max-w-2xl text-lead text-pretty text-fg-muted">{lead}</p>}
+  <slot />
+</header>

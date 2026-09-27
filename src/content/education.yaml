@@ -1,0 +1,21 @@
+# Formación que aparece en /cv. Deliberadamente sin cursos sueltos ni proyectos de formación.
+
+- id: dam
+  kind: degree
+  title:
+    es: CFGS en Desarrollo de Aplicaciones Multiplataforma
+    en: Higher Vocational Diploma in Multiplatform Application Development
+  institution: Academia Optima
+  start: 2021-09
+  end: 2023-06
+
+- id: business-intelligence
+  kind: certification
+  title:
+    es: "Inteligencia empresarial: IA, Big Data y otras herramientas digitales"
+    en: "Business Intelligence: AI, Big Data and other digital tools"
+  institution: Centro de Estudios Velázquez (ADAMS)
+  end: 2025-11
+  detail:
+    es: Programa de 150 horas sobre IA, analítica de datos y automatización para la toma de decisiones.
+    en: 150-hour program on AI, data analytics and automation for decision-making.

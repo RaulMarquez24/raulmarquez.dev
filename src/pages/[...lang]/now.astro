@@ -1,0 +1,21 @@
+---
+import PageHeader from '../../components/PageHeader.astro';
+import { type Locale, localeStaticPaths, t } from '../../i18n/ui';
+import Base from '../../layouts/Base.astro';
+
+export function getStaticPaths() {
+  return localeStaticPaths();
+}
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<Base locale={locale} path="/now" title={t(locale, 'now.title')}>
+  <div class="container-page">
+    <PageHeader title={t(locale, 'now.title')} lead={t(locale, 'placeholder')} />
+  </div>
+</Base>

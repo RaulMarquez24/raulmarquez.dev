@@ -1,0 +1,90 @@
+---
+import { Font } from 'astro:assets';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { defaultLocale, type Locale, locales, localeTags, localizePath, pick, t } from '../i18n/ui';
+import { getProfile } from '../lib/content';
+import '../styles/global.css';
+
+interface Props {
+  locale: Locale;
+  /** Locale-agnostic path of this page, e.g. "/about". Used for canonical and hreflang. */
+  path: string;
+  title?: string;
+  description?: string;
+  /** Locales this page exists in. Defaults to all. */
+  alternates?: readonly Locale[];
+  noindex?: boolean;
+}
+
+const { locale, path, title, description, alternates = locales, noindex = false } = Astro.props;
+const profile = await getProfile();
+
+const siteTitle = `${profile.name} — ${pick(profile.role, locale)}`;
+const pageTitle = title ? `${title} — ${profile.name}` : siteTitle;
+const pageDescription = description ?? t(locale, 'meta.description');
+const canonical = new URL(localizePath(path, locale), Astro.site);
+const alternateLinks = alternates.map((alt) => ({
+  hreflang: localeTags[alt],
+  href: new URL(localizePath(path, alt), Astro.site).href,
+}));
+const defaultHref = new URL(localizePath(path, defaultLocale), Astro.site).href;
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.fullName,
+  url: Astro.site?.href,
+  jobTitle: pick(profile.role, locale),
+  worksFor: { '@type': 'Organization', name: profile.company.name, url: profile.company.url },
+  address: { '@type': 'PostalAddress', addressLocality: 'Málaga', addressCountry: 'ES' },
+  sameAs: profile.links.map((link) => link.url),
+};
+---
+
+<!doctype html>
+<html lang={localeTags[locale]} data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <link rel="canonical" href={canonical.href} />
+    {alternateLinks.map((alt) => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}
+    <link rel="alternate" hreflang="x-default" href={defaultHref} />
+    {noindex && <meta name="robots" content="noindex" />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={profile.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:locale" content={localeTags[locale].replace('-', '_')} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0b0b0c" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#fbfaf8" media="(prefers-color-scheme: light)" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <Font cssVariable="--font-inter-tight" preload />
+    <Font cssVariable="--font-jetbrains-mono" />
+
+    <script is:inline>
+      // Dark by default; a saved choice wins. Runs before paint to avoid a theme flash.
+      try {
+        if (localStorage.getItem('theme') === 'light') document.documentElement.dataset.theme = 'light';
+      } catch {}
+    </script>
+    <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+  </head>
+  <body>
+    <a class="skip-link" href="#content">{t(locale, 'skip.content')}</a>
+    <Header locale={locale} path={path} alternates={alternates} />
+    <main id="content">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+  </body>
+</html>

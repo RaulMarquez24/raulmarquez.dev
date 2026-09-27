@@ -1,0 +1,42 @@
+---
+import PageHeader from '../../components/PageHeader.astro';
+import SectionHeader from '../../components/SectionHeader.astro';
+import { type Locale, localeStaticPaths, pick, t } from '../../i18n/ui';
+import Base from '../../layouts/Base.astro';
+import { getStack } from '../../lib/content';
+
+export function getStaticPaths() {
+  return localeStaticPaths();
+}
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const groups = await getStack();
+---
+
+<Base locale={locale} path="/uses" title={t(locale, 'uses.title')}>
+  <div class="container-page">
+    <PageHeader title={t(locale, 'uses.title')} lead={t(locale, 'uses.intro')} />
+
+    <div class="mt-16 grid gap-12 sm:grid-cols-2">
+      {
+        groups.map((group) => (
+          <section aria-labelledby={`uses-${group.id}`}>
+            <SectionHeader id={`uses-${group.id}`} title={pick(group.data.group, locale)} />
+            <ul class="mt-4 space-y-2">
+              {group.data.items.map((item) => (
+                <li>
+                  {item.name}
+                  {item.note && <span class="text-fg-subtle"> — {pick(item.note, locale)}</span>}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</Base>

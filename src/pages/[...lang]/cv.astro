@@ -1,0 +1,57 @@
+---
+import CompanyExperience from '../../components/CompanyExperience.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import SectionHeader from '../../components/SectionHeader.astro';
+import { type Locale, localeStaticPaths, pick, t } from '../../i18n/ui';
+import Base from '../../layouts/Base.astro';
+import { getEducation, getExperienceByCompany, getProfile } from '../../lib/content';
+import { formatPeriod } from '../../lib/dates';
+
+export function getStaticPaths() {
+  return localeStaticPaths();
+}
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const profile = await getProfile();
+const companies = await getExperienceByCompany();
+const education = await getEducation();
+---
+
+<Base locale={locale} path="/cv" title={t(locale, 'cv.title')}>
+  <div class="container-page">
+    <PageHeader title={profile.fullName}>
+      <p class="meta mt-4 text-fg-muted">
+        {pick(profile.role, locale)} · {profile.company.name} · {pick(profile.location, locale)}
+      </p>
+    </PageHeader>
+
+    <section aria-labelledby="cv-experience" class="mt-16">
+      <SectionHeader id="cv-experience" title={t(locale, 'cv.experience')} />
+      <ol>
+        {companies.map((group) => <CompanyExperience group={group} locale={locale} />)}
+      </ol>
+    </section>
+
+    <section aria-labelledby="cv-education" class="mt-16">
+      <SectionHeader id="cv-education" title={t(locale, 'cv.education')} />
+      <ol>
+        {
+          education.map((item) => (
+            <li class="grid gap-2 border-b border-line py-6 sm:grid-cols-[14rem_1fr] sm:gap-8">
+              <p class="meta text-fg-subtle">{formatPeriod(item.data.start ?? item.data.end, item.data.end, locale)}</p>
+              <div>
+                <h3 class="font-medium">{pick(item.data.title, locale)}</h3>
+                <p class="mt-1 text-fg-subtle">{item.data.institution}</p>
+                {item.data.detail && <p class="mt-2 max-w-2xl leading-relaxed text-fg-muted">{pick(item.data.detail, locale)}</p>}
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+  </div>
+</Base>

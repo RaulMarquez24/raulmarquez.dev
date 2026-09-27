@@ -1,0 +1,14 @@
+---
+/** Mono label that opens a section, with an optional right-hand slot (a range, a link…). */
+interface Props {
+  id: string;
+  title: string;
+}
+
+const { id, title } = Astro.props;
+---
+
+<div class="meta flex items-baseline justify-between gap-4 border-b border-line pb-3 text-fg-subtle">
+  <h2 id={id}>{title}</h2>
+  <slot />
+</div>

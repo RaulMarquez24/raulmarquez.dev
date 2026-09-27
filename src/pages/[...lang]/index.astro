@@ -1,0 +1,114 @@
+---
+import SectionHeader from '../../components/SectionHeader.astro';
+import DotField from '../../components/signature/DotField.astro';
+import WorkRow from '../../components/WorkRow.astro';
+import { type Locale, localeStaticPaths, localizePath, pick, t } from '../../i18n/ui';
+import Base from '../../layouts/Base.astro';
+import { getExperienceByCompany, getPrinciples, getProfile, getProjects } from '../../lib/content';
+import { formatPeriod } from '../../lib/dates';
+
+export function getStaticPaths() {
+  return localeStaticPaths();
+}
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const profile = await getProfile();
+const projects = await getProjects(locale);
+const principles = await getPrinciples();
+const companies = await getExperienceByCompany();
+
+const status =
+  profile.status === 'leading'
+    ? t(locale, 'status.leading', { company: profile.company.name })
+    : t(locale, 'status.open');
+const firstYear = Number(
+  projects
+    .map((p) => p.data.start)
+    .sort()[0]
+    ?.slice(0, 4),
+);
+const currentYear = new Date().getFullYear();
+const workRange = firstYear && firstYear < currentYear ? `${firstYear} — ${currentYear}` : null;
+---
+
+<Base locale={locale} path="/">
+  <section class="relative isolate">
+    <DotField />
+    <div class="container-page flex min-h-[68svh] flex-col justify-center pt-10 pb-24 sm:min-h-[74svh]">
+      <p class="meta flex items-center gap-2 text-fg-muted">
+        <span class="size-1.5 rounded-full bg-signal" aria-hidden="true"></span>
+        {status} · {pick(profile.location, locale)}
+      </p>
+      <h1 class="mt-6 max-w-[14ch] text-display text-balance">{pick(profile.headline, locale)}</h1>
+      <p class="mt-6 max-w-xl text-lead text-pretty text-fg-muted">
+        {profile.name}. {pick(profile.intro, locale)}
+      </p>
+    </div>
+  </section>
+
+  <section id="work" aria-labelledby="work-title" class="container-page scroll-mt-8">
+    <SectionHeader id="work-title" title={t(locale, 'home.selectedWork')}>
+      {workRange && <span>{workRange}</span>}
+    </SectionHeader>
+    <ol>
+      {projects.map((project, index) => <WorkRow project={project} index={index} locale={locale} />)}
+    </ol>
+  </section>
+
+  <section aria-labelledby="principles-title" class="container-page mt-(--space-section)">
+    <SectionHeader id="principles-title" title={t(locale, 'home.principles')} />
+    <ul class="grid gap-10 pt-8 sm:grid-cols-2">
+      {
+        principles.map((principle) => (
+          <li>
+            <h3 class="text-subheading">{pick(principle.data.title, locale)}</h3>
+            <p class="mt-2 leading-relaxed text-fg-muted">{pick(principle.data.body, locale)}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section aria-labelledby="experience-title" class="container-page mt-(--space-section)">
+    <SectionHeader id="experience-title" title={t(locale, 'home.experience')}>
+      <a href={localizePath('/cv', locale)} class="transition-colors hover:text-fg">{t(locale, 'home.fullCv')} ↗</a>
+    </SectionHeader>
+    <ul>
+      {
+        companies.map((group) => (
+          <li class="grid grid-cols-[1fr_auto] items-baseline gap-4 border-b border-line py-4">
+            <div>
+              <p>{group.company}</p>
+              <p class="mt-1 text-fg-subtle">
+                {[...group.roles].reverse().map((role, index) => (
+                  <>
+                    {index > 0 && (
+                      <>
+                        <span aria-hidden="true"> → </span>
+                        <span class="sr-only">, </span>
+                      </>
+                    )}
+                    {pick(role.data.role, locale)}
+                  </>
+                ))}
+              </p>
+            </div>
+            <span class="meta text-fg-subtle">{formatPeriod(group.start, group.end, locale, 'year')}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section aria-labelledby="contact-title" class="container-page mt-(--space-section)">
+    <h2 id="contact-title" class="text-heading">{t(locale, 'home.contact')}</h2>
+    <p class="mt-4 max-w-lg text-fg-muted">{t(locale, 'home.contactText')}</p>
+    <p class="mt-6">
+      <a href={`mailto:${profile.email}`} class="link text-xl">{profile.email}</a>
+    </p>
+  </section>
+</Base>

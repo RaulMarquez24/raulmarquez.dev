@@ -1,0 +1,59 @@
+---
+import { type Locale, pick, t } from '../i18n/ui';
+import type { CompanyGroup } from '../lib/content';
+import { formatDuration, formatPeriod, monthsBetween } from '../lib/dates';
+import StackList from './StackList.astro';
+
+/**
+ * One company in the CV: total period on the left and its roles on a timeline on the right.
+ * Every company uses the same timeline, even with a single role, so the CV reads as one system
+ * and a promotion shows at a glance.
+ */
+interface Props {
+  group: CompanyGroup;
+  locale: Locale;
+}
+
+const { group, locale } = Astro.props;
+const modeKey = { remote: 'mode.remote', hybrid: 'mode.hybrid', onsite: 'mode.onsite' } as const;
+---
+
+<li class="grid gap-2 border-b border-line py-6 sm:grid-cols-[14rem_1fr] sm:gap-8">
+  <p class="meta text-fg-subtle">
+    {formatPeriod(group.start, group.end, locale)}
+    <br />
+    {formatDuration(monthsBetween(group.start, group.end), locale)}
+    <br />
+    {pick(group.location, locale)}
+  </p>
+  <div>
+    <h3 class="text-subheading">{group.company}</h3>
+    <ol class="mt-4 space-y-8 border-l border-line">
+      {
+        group.roles.map((role) => (
+          <li class="relative pl-6">
+            <span
+              aria-hidden="true"
+              class:list={[
+                'absolute top-2 -left-[4.5px] size-2 rounded-full ring-4 ring-bg',
+                role.data.end === null ? 'bg-accent' : 'bg-fg-subtle',
+              ]}
+            />
+            <h4 class="font-medium">{pick(role.data.role, locale)}</h4>
+            <p class="meta mt-1 text-fg-subtle">
+              {formatPeriod(role.data.start, role.data.end, locale)} ·{' '}
+              {formatDuration(monthsBetween(role.data.start, role.data.end), locale)} ·{' '}
+              {t(locale, modeKey[role.data.mode])}
+            </p>
+            {role.data.summary && (
+              <p class="mt-3 max-w-2xl leading-relaxed text-fg-muted">{pick(role.data.summary, locale)}</p>
+            )}
+            {role.data.stack.length > 0 && (
+              <StackList items={role.data.stack} label={t(locale, 'work.stack')} class="mt-3 text-fg-subtle" />
+            )}
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</li>

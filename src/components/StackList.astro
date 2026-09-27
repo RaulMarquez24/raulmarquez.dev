@@ -1,0 +1,28 @@
+---
+/**
+ * Technologies as a wrapping mono list. Each separator sticks to its item,
+ * so a new line never starts with "·".
+ */
+interface Props {
+  items: string[];
+  label: string;
+  class?: string;
+}
+
+const { items, label, class: className } = Astro.props;
+---
+
+<ul class:list={['meta flex flex-wrap gap-x-2 gap-y-1', className]} aria-label={label}>
+  {
+    items.map((item, index) => (
+      <li class="whitespace-nowrap">
+        {item}
+        {index < items.length - 1 && (
+          <span aria-hidden="true" class="ml-2">
+            ·
+          </span>
+        )}
+      </li>
+    ))
+  }
+</ul>

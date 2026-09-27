@@ -1,0 +1,30 @@
+---
+/**
+ * The portfolio's signature: an interactive dot field.
+ * It fills its closest positioned ancestor (give the parent `relative isolate`) and sits behind its content.
+ * Isolated on purpose, so it can be swapped for another signature without touching anything else.
+ */
+---
+
+<canvas data-dot-field aria-hidden="true"></canvas>
+
+<style>
+  /* Sizing lives here, not in utility classes: the canvas must never size itself. */
+  canvas {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    mask-image: linear-gradient(to bottom, black 45%, transparent);
+  }
+</style>
+
+<script>
+  import { mountDotField } from './dot-field';
+
+  for (const canvas of document.querySelectorAll<HTMLCanvasElement>('canvas[data-dot-field]')) {
+    mountDotField(canvas);
+  }
+</script>

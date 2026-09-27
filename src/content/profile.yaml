@@ -1,0 +1,28 @@
+# Perfil principal. Los textos visibles van siempre en los dos idiomas: { es, en }.
+me:
+  name: Raúl Márquez
+  fullName: Raúl Márquez Urbano
+  role:
+    es: Tech Lead & Lead Developer
+    en: Tech Lead & Lead Developer
+  company:
+    name: Renterus
+    url: https://renterus.com
+  location:
+    es: Málaga, España
+    en: Málaga, Spain
+  # leading → "Tech Lead en Renterus" · open → "Abierto a conversar"
+  status: leading
+  headline:
+    es: Construyo producto y los equipos que lo sostienen.
+    en: I build products and the teams that sustain them.
+  # Tono técnico. Sin frameworks: envejecen mal y ya aparecen en cada caso de estudio.
+  intro:
+    es: Lidero la tecnología de Renterus, un SaaS y red comercial para la gestión turística. Defino la arquitectura y los servicios, y sigo escribiendo código cada día.
+    en: I lead technology at Renterus, a SaaS platform and business network for vacation-rental management. I define the architecture and the services, and I still write code every day.
+  email: me@raulmarquez.dev
+  links:
+    - label: GitHub
+      url: https://github.com/RaulMarquez24
+    - label: LinkedIn
+      url: https://www.linkedin.com/in/raul-marquez-urbano/

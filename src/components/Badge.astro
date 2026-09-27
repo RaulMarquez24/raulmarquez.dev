@@ -1,0 +1,17 @@
+---
+/** Small outlined label in the accent colour (e.g. "draft"). */
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<span
+  class:list={[
+    'meta inline-block rounded-sm border border-accent px-1.5 py-0.5 align-middle text-[0.6875rem] leading-none text-accent',
+    className,
+  ]}
+>
+  <slot />
+</span>

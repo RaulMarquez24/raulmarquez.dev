@@ -1,0 +1,52 @@
+# Trayectoria, de más reciente a más antigua. Fechas en YYYY-MM; end: null = puesto actual.
+# Las duraciones se calculan solas a partir de las fechas.
+
+- id: renterus-tech-lead
+  company: Renterus Software S.L.
+  url: https://renterus.com
+  role:
+    es: Tech Lead & Lead Developer
+    en: Tech Lead & Lead Developer
+  start: 2025-07
+  end: null
+  mode: remote
+  location:
+    es: Nerja, España
+    en: Nerja, Spain
+  summary:
+    es: Lidero la tecnología de extremo a extremo, en frontend, backend y móvil. Defino la arquitectura y la hoja de ruta técnica, y sigo desarrollando a diario. Diseño sistemas pensados para escalar y un equipo con el conocimiento distribuido, sin puntos únicos de fallo.
+    en: I lead technology end to end, across frontend, backend and mobile. I define the architecture and the technical roadmap, and I still build every day. I design systems built to scale and a team with shared knowledge, with no single points of failure.
+  stack: [React Native, Expo, Next.js, React, Astro, TypeScript, Node.js, Socket.IO, PHP, CodeIgniter, MySQL, MongoDB]
+
+- id: renterus-full-stack
+  company: Renterus Software S.L.
+  url: https://renterus.com
+  role:
+    es: Full Stack Developer
+    en: Full Stack Developer
+  start: 2023-11
+  end: 2025-07
+  mode: hybrid
+  location:
+    es: Nerja, España
+    en: Nerja, Spain
+  summary:
+    es: Desarrollo full stack de nuevas funcionalidades según las necesidades del producto, con foco en la app móvil y trabajo en paralelo en la web y el backend.
+    en: Full-stack development of new features driven by product needs, focused on the mobile app while also building on the web and the backend.
+  stack: [React Native, Expo, Next.js, React, TypeScript, Node.js, PHP, CodeIgniter, MySQL]
+
+- id: atech
+  company: Atech Allied Technologies
+  role:
+    es: Desarrollador Full Stack
+    en: Full Stack Developer
+  start: 2023-04
+  end: 2023-06
+  mode: onsite
+  location:
+    es: Málaga, España
+    en: Málaga, Spain
+  summary:
+    es: Desarrollo web full stack con Laravel y Angular sobre MySQL.
+    en: Full-stack web development with Laravel and Angular on MySQL.
+  stack: [Laravel, PHP, Angular, MySQL]

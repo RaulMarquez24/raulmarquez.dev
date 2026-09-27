@@ -1,0 +1,31 @@
+---
+import { type Locale, localizePath, t } from '../i18n/ui';
+import { getProfile } from '../lib/content';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const profile = await getProfile();
+const year = new Date().getFullYear();
+---
+
+<footer class="container-page mt-(--space-section)">
+  <div class="meta flex flex-col gap-4 border-t border-line py-8 text-fg-subtle sm:flex-row sm:items-center sm:justify-between">
+    <p>© {year} {profile.fullName}</p>
+    <ul class="flex flex-wrap gap-x-5 gap-y-2">
+      <li><a class="transition-colors hover:text-fg" href={localizePath('/now', locale)}>{t(locale, 'nav.now')}</a></li>
+      <li><a class="transition-colors hover:text-fg" href={localizePath('/uses', locale)}>{t(locale, 'nav.uses')}</a></li>
+      {
+        profile.links.map((link) => (
+          <li>
+            <a class="transition-colors hover:text-fg" href={link.url} rel="me noopener" target="_blank">
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</footer>

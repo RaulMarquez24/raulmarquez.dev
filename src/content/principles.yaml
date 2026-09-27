@@ -1,0 +1,37 @@
+# "Cómo trabajo", en la portada.
+
+- id: understand
+  order: 1
+  title:
+    es: Entender antes de programar
+    en: Understand before coding
+  body:
+    es: Antes de escribir una línea quiero saber qué problema resolvemos y para quién. Muchas veces la solución sale de hacerse bien esa pregunta.
+    en: Before writing a line, I want to know what problem we're solving and for whom. The solution often comes from asking that question well.
+
+- id: product-first
+  order: 2
+  title:
+    es: Producto antes que tecnología
+    en: Product before technology
+  body:
+    es: La tecnología se elige por lo que resuelve para quien usa el producto, no por moda.
+    en: Technology is chosen for what it solves for the people using the product, not for hype.
+
+- id: small-changes
+  order: 3
+  title:
+    es: Cambios pequeños, revisión seria
+    en: Small changes, serious review
+  body:
+    es: Prefiero muchos cambios pequeños y bien revisados a uno enorme que nadie entiende.
+    en: I'd rather have many small, well-reviewed changes than one huge change nobody understands.
+
+- id: resilience
+  order: 4
+  title:
+    es: Que un fallo no tumbe el resto
+    en: One failure shouldn't take down the rest
+  body:
+    es: Diseño contando con que algo fallará. Si una pieza cae, el resto del producto tiene que seguir funcionando.
+    en: I design assuming something will fail. If one piece goes down, the rest of the product has to keep working.

@@ -1,0 +1,111 @@
+---
+import { render } from 'astro:content';
+import Badge from '../../../components/Badge.astro';
+import PageHeader from '../../../components/PageHeader.astro';
+import StackList from '../../../components/StackList.astro';
+import { defaultLocale, type Locale, locales, localizePath, t } from '../../../i18n/ui';
+import Base from '../../../layouts/Base.astro';
+import { getProjects, type Project, projectSlug } from '../../../lib/content';
+import { formatPeriod } from '../../../lib/dates';
+
+export async function getStaticPaths() {
+  const byLocale = await Promise.all(
+    locales.map(async (locale) => ({
+      locale,
+      // Projects that link to their own site have no case-study page.
+      projects: (await getProjects(locale)).filter((project) => !project.data.externalUrl),
+    })),
+  );
+  const slugsIn = (locale: Locale) =>
+    new Set(byLocale.find((group) => group.locale === locale)?.projects.map(projectSlug));
+
+  return byLocale.flatMap(({ locale, projects }) =>
+    projects.map((project) => {
+      const slug = projectSlug(project);
+      return {
+        params: { lang: locale === defaultLocale ? undefined : locale, slug },
+        props: {
+          locale,
+          project,
+          alternates: locales.filter((alt) => slugsIn(alt).has(slug)),
+        },
+      };
+    }),
+  );
+}
+
+interface Props {
+  locale: Locale;
+  project: Project;
+  alternates: Locale[];
+}
+
+const { locale, project, alternates } = Astro.props;
+const { Content } = await render(project);
+const { data } = project;
+const slug = projectSlug(project);
+
+const facts = [
+  { label: t(locale, 'work.role'), value: data.role },
+  { label: t(locale, 'work.period'), value: formatPeriod(data.start, data.end, locale) },
+];
+---
+
+<Base
+  locale={locale}
+  path={`/work/${slug}`}
+  title={data.title}
+  description={data.summary}
+  alternates={alternates}
+  noindex={data.draft}
+>
+  <article class="container-page">
+    <PageHeader title={data.title} eyebrow={data.category} lead={data.summary}>
+      <Fragment slot="before">
+        <a href={`${localizePath('/', locale)}#work`} class="meta text-fg-subtle transition-colors hover:text-fg">
+          ← {t(locale, 'work.back')}
+        </a>
+        <div class="mt-10">{data.draft && <Badge class="mb-4">{t(locale, 'work.draft')}</Badge>}</div>
+      </Fragment>
+    </PageHeader>
+
+    <dl class="meta mt-12 grid gap-6 border-y border-line py-6 sm:grid-cols-3">
+      {
+        facts.map((fact) => (
+          <div>
+            <dt class="text-fg-subtle">{fact.label}</dt>
+            <dd class="mt-1 text-fg">{fact.value}</dd>
+          </div>
+        ))
+      }
+      {
+        data.stack.length > 0 && (
+          <div>
+            <dt class="text-fg-subtle">{t(locale, 'work.stack')}</dt>
+            <dd class="mt-1 text-fg">
+              <StackList items={data.stack} label={t(locale, 'work.stack')} />
+            </dd>
+          </div>
+        )
+      }
+    </dl>
+
+    {
+      data.links.length > 0 && (
+        <ul class="meta mt-6 flex flex-wrap gap-x-6 gap-y-2">
+          {data.links.map((link) => (
+            <li>
+              <a href={link.url} target="_blank" rel="noopener" class="link">
+                {link.label} ↗
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    <div class="prose-content mt-8">
+      <Content />
+    </div>
+  </article>
+</Base>

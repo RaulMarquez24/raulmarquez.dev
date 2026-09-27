@@ -1,0 +1,17 @@
+---
+import { localizePath, t } from '../i18n/ui';
+import Base from '../layouts/Base.astro';
+---
+
+<Base locale="es" path="/404" title={t('es', 'notFound.title')} alternates={[]} noindex>
+  <div class="container-page pt-24 sm:pt-32">
+    <p class="meta text-accent">404</p>
+    <h1 class="mt-4 text-title">{t('es', 'notFound.title')}</h1>
+    <p class="mt-6 text-fg-muted">{t('es', 'notFound.text')}</p>
+    <p class="mt-2 text-fg-subtle" lang="en">{t('en', 'notFound.text')}</p>
+    <p class="meta mt-10 flex gap-6">
+      <a href={localizePath('/', 'es')} class="link">{t('es', 'nav.home')}</a>
+      <a href={localizePath('/', 'en')} lang="en" class="link">{t('en', 'nav.home')}</a>
+    </p>
+  </div>
+</Base>

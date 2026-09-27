@@ -1,0 +1,17 @@
+// Cloudflare Workers, static assets only: no server code, just `dist/` on Cloudflare's network.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "raulmarquez-dev",
+  "compatibility_date": "2026-09-26",
+  "assets": {
+    "directory": "./dist",
+    // Serves the nearest 404.html with a real 404 status.
+    "not_found_handling": "404-page",
+    // Matches Astro's trailingSlash: 'always' (/about → /about/).
+    "html_handling": "auto-trailing-slash"
+  },
+  "workers_dev": true,
+  "preview_urls": true
+  // Custom domain, added at launch (subdomains such as traindia.raulmarquez.dev are unaffected):
+  // "routes": [{ "pattern": "raulmarquez.dev", "custom_domain": true }],
+}

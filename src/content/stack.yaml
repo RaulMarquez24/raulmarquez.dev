@@ -1,0 +1,55 @@
+# Herramientas agrupadas con contexto, para /uses. Nada de muros de logos.
+
+- id: web
+  order: 1
+  group:
+    es: Web
+    en: Web
+  items:
+    - name: TypeScript
+    - name: React
+    - name: Next.js
+    - name: Astro
+    - name: Tailwind CSS
+
+- id: mobile
+  order: 2
+  group:
+    es: Móvil
+    en: Mobile
+  items:
+    - name: React Native
+    - name: Expo
+
+- id: backend
+  order: 3
+  group:
+    es: Backend y tiempo real
+    en: Backend and real-time
+  items:
+    - name: PHP · CodeIgniter
+    - name: Node.js · Express
+    - name: Socket.IO
+
+- id: data
+  order: 4
+  group:
+    es: Datos
+    en: Data
+  items:
+    - name: MySQL
+    - name: MongoDB
+    - name: Supabase (Postgres)
+
+- id: infra
+  order: 5
+  group:
+    es: Infraestructura y herramientas
+    en: Infrastructure and tooling
+  items:
+    - name: GitHub Actions
+    - name: Docker
+    - name: Cloudflare
+    - name: Linux (Debian)
+    - name: Sentry
+    - name: Docusaurus
