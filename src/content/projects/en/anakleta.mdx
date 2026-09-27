@@ -13,18 +13,35 @@ links:
 order: 3
 featured: true
 cover:
-  hue: 150
-  pattern: rings
+  src: ../../../assets/projects/anakleta/cover.webp
+  alt: "Añakleta, Discord bot: the shield with the bot between a barbarian and an archer, over a landscape of castles"
+  fit: cover
+  background: "#2b4a2f"
 ---
 
-## Context
+## Why it exists
 
-Coming soon.
+Running an active Clash of Clans clan means keeping track of dozens of players: who attacks in war, who signs up for the league, who hasn't shown up for days. I built it for my clan. It brings all of that into a private panel for the co-leaders and hands the repetitive work to a Discord bot.
+
+## What it does
+
+- **Panel:** members with their history and linked accounts, activity and streaks, wars attack by attack, warnings and sanctions, league sign-ups and seasons, rankings and capital raids. Plus a rules editor and an announcement composer for Discord.
+- **Bot:** league sign-up by typing naturally ("I'm in") or with commands, a welcome by direct message, and nickname and roles set from the player's game account.
 
 ## Architecture
 
-Coming soon.
+The panel (Next.js 16 with Server Actions, on Supabase) and the bot (Node with discord.js) are deployed separately and only talk through the database. There are no queues: GitHub Actions triggers the scheduled jobs against protected panel routes. There's a clan snapshot every six hours, war capture and reminders every hour, and daily syncs. All of them are idempotent, so re-running one never duplicates anything.
+
+## Decisions
+
+**Understanding free text without false positives.** The bot recognizes intent despite typos, but only applies edit distance to long, specific words. On short ones, a typo would end up triggering actions nobody asked for.
+
+**Telling inactivity from a season reset.** Periodic clan snapshots show whether someone has stopped playing or the game has simply reset the season.
+
+**Independent pieces.** Since the panel and the bot only share the database, either can be updated or restarted without affecting the other.
 
 ## Outcome
 
-Coming soon.
+In production for my clan since summer 2026. It's tailored to it, but it can be adapted to any other. Like everything I build on my own, it comes from automating a real need, and I publish it so others can use it.
+
+<small>Añakleta is a fan project: it is unofficial and not endorsed by Supercell. See Supercell's [Fan Content Policy](https://supercell.com/en/fan-content-policy/).</small>

@@ -24,6 +24,7 @@ const external = data.externalUrl;
     href={external ?? localizePath(`/work/${projectSlug(project)}`, locale)}
     target={external ? '_blank' : undefined}
     rel={external ? 'noopener' : undefined}
+    data-work-row={index}
     class="group grid grid-cols-[2.5rem_1fr_auto] items-baseline gap-x-4 py-5 transition-colors hover:bg-bg-elevated/60 sm:grid-cols-[3rem_1fr_auto_auto]"
   >
     <span class="meta text-fg-subtle">{String(index + 1).padStart(2, '0')}</span>

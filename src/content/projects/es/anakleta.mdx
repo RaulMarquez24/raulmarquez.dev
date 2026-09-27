@@ -13,18 +13,35 @@ links:
 order: 3
 featured: true
 cover:
-  hue: 150
-  pattern: rings
+  src: ../../../assets/projects/anakleta/cover.webp
+  alt: "Añakleta, bot de Discord: el escudo con el bot entre un bárbaro y una arquera, sobre un paisaje de castillos"
+  fit: cover
+  background: "#2b4a2f"
 ---
 
-## Contexto
+## Por qué existe
 
-Próximamente.
+Llevar un clan activo de Clash of Clans supone seguir a decenas de jugadores: quién ataca en guerra, quién se apunta a la liga, quién lleva días sin aparecer. Lo construí para mi clan. Reúne todo eso en un panel privado para los colíderes y deja el trabajo repetitivo a un bot de Discord.
+
+## Qué hace
+
+- **Panel:** miembros con su historial y sus cuentas vinculadas, actividad y rachas, guerras ataque a ataque, avisos y sanciones, inscripciones y temporadas de liga, rankings y raids de la capital. Además, un editor de normas y un compositor de anuncios para Discord.
+- **Bot:** inscripción en la liga escribiendo con naturalidad ("me apunto") o con comandos, bienvenida por mensaje privado, y apodo y roles asignados según la cuenta del juego.
 
 ## Arquitectura
 
-Próximamente.
+El panel (Next.js 16 con Server Actions, sobre Supabase) y el bot (Node con discord.js) se despliegan por separado y solo se comunican a través de la base de datos. No hay colas: las tareas periódicas las lanza GitHub Actions contra rutas protegidas del panel. Hay una foto del clan cada seis horas, captura de guerras y recordatorios cada hora, y sincronizaciones diarias. Todas son idempotentes, así que repetir una ejecución nunca duplica nada.
+
+## Decisiones
+
+**Entender texto libre sin falsos positivos.** El bot reconoce la intención aunque haya faltas de ortografía, pero solo aplica distancia de edición a palabras largas y específicas. En las cortas, un error tipográfico acabaría disparando acciones que nadie pidió.
+
+**Distinguir inactividad de cambio de temporada.** Las fotos periódicas del clan permiten saber si alguien ha dejado de jugar o si simplemente el juego ha reiniciado la temporada.
+
+**Piezas independientes.** Como el panel y el bot solo comparten la base de datos, cada uno se puede actualizar o reiniciar sin afectar al otro.
 
 ## Resultado
 
-Próximamente.
+En producción para mi clan desde el verano de 2026. Está hecho a su medida, pero se puede adaptar a cualquier otro. Como todo lo que construyo por mi cuenta, nace de automatizar una necesidad real, y lo publico para que otros puedan usarlo.
+
+<small>Añakleta es un proyecto de fans: no es oficial ni está respaldado por Supercell. Más información en su [política de contenido de fans](https://supercell.com/en/fan-content-policy/).</small>

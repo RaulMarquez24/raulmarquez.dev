@@ -1,7 +1,7 @@
 ---
 import SectionHeader from '../../components/SectionHeader.astro';
 import DotField from '../../components/signature/DotField.astro';
-import WorkRow from '../../components/WorkRow.astro';
+import WorkList from '../../components/WorkList.astro';
 import { type Locale, localeStaticPaths, localizePath, pick, t } from '../../i18n/ui';
 import Base from '../../layouts/Base.astro';
 import { getExperienceByCompany, getPrinciples, getProfile, getProjects } from '../../lib/content';
@@ -54,9 +54,7 @@ const workRange = firstYear && firstYear < currentYear ? `${firstYear} — ${cur
     <SectionHeader id="work-title" title={t(locale, 'home.selectedWork')}>
       {workRange && <span>{workRange}</span>}
     </SectionHeader>
-    <ol>
-      {projects.map((project, index) => <WorkRow project={project} index={index} locale={locale} />)}
-    </ol>
+    <WorkList projects={projects} locale={locale} />
   </section>
 
   <section aria-labelledby="principles-title" class="container-page mt-(--space-section)">

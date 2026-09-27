@@ -1,0 +1,107 @@
+---
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import type { Project } from '../lib/content';
+
+/**
+ * A project's 16:9 cover, the same in the work-list preview and the case-study hero.
+ * - `fit: cover`: a designed image that fills the frame.
+ * - `fit: contain`: a logo centred on the project's brand background.
+ * - `srcDark` / `backgroundDark`: variants for the dark theme.
+ * - No cover: the project title, set large on a neutral surface.
+ */
+interface Props {
+  project: Project;
+  variant: 'preview' | 'hero';
+  class?: string;
+  transitionName?: string;
+}
+
+const { project, variant, class: className, transitionName } = Astro.props;
+const { cover, title } = project.data;
+
+/** One source, or a light/dark pair toggled by the site theme. */
+const sources: { src: ImageMetadata; theme?: string }[] = cover
+  ? cover.srcDark
+    ? [
+        { src: cover.src, theme: 'theme-light-only' },
+        { src: cover.srcDark, theme: 'theme-dark-only' },
+      ]
+    : [{ src: cover.src }]
+  : [];
+
+const style = [
+  cover && `--cover-bg: ${cover.background}`,
+  cover?.backgroundDark && `--cover-bg-dark: ${cover.backgroundDark}`,
+  transitionName && `view-transition-name: ${transitionName}`,
+]
+  .filter(Boolean)
+  .join('; ');
+const loading = variant === 'hero' ? 'eager' : 'lazy';
+
+/** Responsive widths up to the source size: never upscale. */
+const widthsFor = (src: ImageMetadata) => [
+  ...[240, 480, 720, 1088, 1440, 2176].filter((width) => width < src.width),
+  src.width,
+];
+---
+
+<div
+  class:list={['project-cover relative aspect-video overflow-hidden', !cover && 'bg-bg-elevated', className]}
+  style={style || undefined}
+>
+  {
+    cover?.fit === 'cover' &&
+      sources.map(({ src, theme }) => (
+        <Picture
+          src={src}
+          alt={cover.alt}
+          widths={widthsFor(src)}
+          sizes={variant === 'hero' ? '(min-width: 1152px) 1088px, 100vw' : '240px'}
+          formats={['avif', 'webp']}
+          loading={loading}
+          class:list={['absolute inset-0 size-full object-cover', theme]}
+        />
+      ))
+  }
+  {
+    cover?.fit === 'contain' && (
+      <div class="absolute inset-0 grid place-items-center p-[6%]">
+        {sources.map(({ src, theme }) =>
+          src.format === 'svg' ? (
+            <img
+              src={src.src}
+              alt={cover.alt}
+              width={src.width}
+              height={src.height}
+              class:list={['h-auto max-h-full w-full', theme]}
+            />
+          ) : (
+            <Picture
+              src={src}
+              alt={cover.alt}
+              widths={widthsFor(src)}
+              sizes={variant === 'hero' ? '(min-width: 1152px) 800px, 80vw' : '200px'}
+              formats={['avif', 'webp']}
+              loading={loading}
+              class:list={['h-auto max-h-full w-full object-contain', theme]}
+            />
+          ),
+        )}
+      </div>
+    )
+  }
+  {
+    !cover && (
+      <p
+        aria-hidden="true"
+        class:list={[
+          'absolute inset-0 grid place-items-center font-medium tracking-tight text-fg-subtle',
+          variant === 'hero' ? 'text-title' : 'text-subheading',
+        ]}
+      >
+        {title}
+      </p>
+    )
+  }
+</div>

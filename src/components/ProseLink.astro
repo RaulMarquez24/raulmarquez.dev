@@ -1,0 +1,21 @@
+---
+import { defaultLocale, type Locale, t } from '../i18n/ui';
+
+/**
+ * Links inside case-study MDX. External links open in a new tab (and say so to screen readers);
+ * internal ones behave as usual.
+ */
+interface Props {
+  href?: string;
+  [attribute: string]: unknown;
+}
+
+const { href = '', ...attributes } = Astro.props;
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+const external = /^https?:\/\//.test(href) && !href.startsWith(Astro.site?.origin ?? '\0');
+---
+
+<a href={href} {...attributes} {...external ? { target: '_blank', rel: 'noopener' } : {}}>
+  <slot />
+  {external && <span class="sr-only">{` ${t(locale, 'link.newTab')}`}</span>}
+</a>

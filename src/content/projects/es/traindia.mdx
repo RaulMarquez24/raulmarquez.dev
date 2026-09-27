@@ -15,18 +15,43 @@ links:
 order: 2
 featured: true
 cover:
-  hue: 30
-  pattern: waves
+  src: ../../../assets/projects/traindia/cover.webp
+  alt: "Traindía: el icono de la app y dos móviles con el plan de la semana y el historial de sesiones"
+  fit: cover
+  background: "#4f46e5"
 ---
 
-## Contexto
+## Por qué existe
 
-Próximamente.
+Empezó como una herramienta para seguir los entrenamientos de dos personas y acabó siendo una aplicación para cualquier rutina, con planes semanales, sesiones en directo, progreso, nutrición y documentos. Se usa a diario desde el primer día.
 
-## Decisiones
+Que fuera una PWA fue una decisión de producto. Tenía que funcionar igual en iOS y en Android, y una app nativa suponía pasar por la App Store y Google Play, con sus licencias de desarrollador, además de mantener una base de datos de usuarios. Como PWA se instala en cualquier dispositivo desde el navegador. Cada usuario tiene su perfil en su propio móvil y, para compararse con otros, exporta sus datos en un archivo JSON o de texto que la otra persona importa en un perfil secundario.
 
-Próximamente.
+## Arquitectura
+
+HTML, CSS y JavaScript servidos como estáticos, sin framework, sin build y sin una sola dependencia.
+
+- **Shell y router** en un único `index.html` con `app.js`, y una vista por módulo: plan, sesiones, progreso, nutrición y datos.
+- **Capa de datos** sobre IndexedDB, con almacenes para perfiles, ejercicios, rutinas, sesiones, progreso, nutrición y documentos, y migraciones versionadas.
+- **Service worker** que cachea los archivos para el uso sin conexión.
+- **Gráficas SVG** dibujadas a mano, sin librerías.
+
+## Decisiones técnicas
+
+**Compararse sin servidor.** Cada uno exporta lo que quiera (un día, unas sesiones, el progreso…) y la otra persona lo importa en un perfil de invitado para comparar. Al importar, la app resuelve conflictos y reasigna las referencias entre registros.
+
+**Offline sin quedarse desactualizada.** El service worker sirve los archivos propios con estrategia *network-first* y `cache: 'reload'`, que salta también la caché HTTP. Con conexión siempre llega lo último; sin ella, la app funciona igual. Los archivos viven en Cache Storage y los datos en IndexedDB, así que una actualización nunca toca lo guardado.
+
+**Los datos del usuario, a salvo en cada versión.** El modelo evoluciona con migraciones versionadas, y un cambio de estructura no rompe los datos de nadie.
+
+**IA sin backend.** La app no integra ninguna API. Compone el contexto (ejercicio, objetivo y series hechas) y lo abre en ChatGPT, Gemini o Claude. Con los planes de nutrición, genera las instrucciones, recibe el archivo que devuelve la IA y lo valida y previsualiza antes de guardarlo.
+
+**Integrada en el móvil.** Se instala como app y recibe documentos a través de *Compartir → Traindía*, con lo que un PDF que llega por WhatsApp se guarda en dos toques.
+
+## Despliegue
+
+GitHub Pages con un workflow propio. El último paso comprueba que la web sirve de verdad la versión recién subida. Si en cinco minutos no lo hace, la ejecución falla en rojo en lugar de dejar un despliegue a medias sin avisar.
 
 ## Resultado
 
-Próximamente.
+En producción y en uso diario desde abril de 2026. Como todo lo que construyo por mi cuenta, nace de automatizar una necesidad real, y lo publico para que cualquiera pueda usarlo.

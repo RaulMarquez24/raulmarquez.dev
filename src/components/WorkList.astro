@@ -1,0 +1,109 @@
+---
+import type { Locale } from '../i18n/ui';
+import { type Project, projectSlug } from '../lib/content';
+import ProjectVisual from './ProjectVisual.astro';
+import WorkRow from './WorkRow.astro';
+
+/**
+ * Selected-work list. With a mouse, hovering a row shows the project's visual
+ * (screenshot or generative cover) floating next to the cursor. Hidden on touch;
+ * no easing with reduced motion.
+ */
+interface Props {
+  projects: Project[];
+  locale: Locale;
+}
+
+const { projects, locale } = Astro.props;
+---
+
+<div data-work-list>
+  <ol>
+    {projects.map((project, index) => <WorkRow project={project} index={index} locale={locale} />)}
+  </ol>
+
+  <div
+    data-work-preview
+    aria-hidden="true"
+    class="pointer-events-none fixed top-0 left-0 z-20 hidden aspect-video w-64 overflow-hidden rounded-md opacity-0 transition-opacity duration-300 pointer-fine:block"
+  >
+    {
+      projects.map((project, index) => (
+        <div data-cover={index} class="absolute inset-0 opacity-0 transition-opacity duration-300">
+          <ProjectVisual
+            project={project}
+            variant="preview"
+            class="size-full"
+            transitionName={project.data.externalUrl ? undefined : `cover-${projectSlug(project)}`}
+          />
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  const list = document.querySelector<HTMLElement>('[data-work-list]');
+  const preview = list?.querySelector<HTMLElement>('[data-work-preview]');
+
+  if (list && preview) {
+    const covers = [...preview.querySelectorAll<HTMLElement>('[data-cover]')];
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const target = { x: 0, y: 0 };
+    const position = { x: 0, y: 0 };
+    let scale = 0.92;
+    let visible = false;
+    let frame = 0;
+
+    const place = (event: PointerEvent) => {
+      const width = preview.offsetWidth;
+      const height = preview.offsetHeight;
+      const flip = event.clientX + 32 + width > window.innerWidth;
+      target.x = flip ? event.clientX - 32 - width : event.clientX + 32;
+      target.y = Math.min(Math.max(event.clientY - height / 2, 8), window.innerHeight - height - 8);
+    };
+
+    const render = () => {
+      const ease = reducedMotion.matches ? 1 : 0.18;
+      position.x += (target.x - position.x) * ease;
+      position.y += (target.y - position.y) * ease;
+      scale += ((visible ? 1 : 0.92) - scale) * (reducedMotion.matches ? 1 : 0.2);
+      preview.style.transform = `translate3d(${position.x}px, ${position.y}px, 0) scale(${scale})`;
+      frame = visible || Math.abs(scale - 0.92) > 0.001 ? requestAnimationFrame(render) : 0;
+    };
+
+    const start = () => {
+      if (!frame) frame = requestAnimationFrame(render);
+    };
+
+    for (const row of list.querySelectorAll<HTMLElement>('[data-work-row]')) {
+      row.addEventListener('pointerenter', (event) => {
+        if (event.pointerType !== 'mouse') return;
+        const index = Number(row.dataset.workRow);
+        covers.forEach((cover, i) => {
+          cover.style.opacity = i === index ? '1' : '0';
+        });
+        place(event);
+        if (!visible) {
+          position.x = target.x;
+          position.y = target.y;
+        }
+        visible = true;
+        preview.style.opacity = '1';
+        preview.dataset.visible = 'true';
+        start();
+      });
+      row.addEventListener('pointermove', (event) => {
+        place(event);
+        start();
+      });
+    }
+
+    list.addEventListener('pointerleave', () => {
+      visible = false;
+      preview.style.opacity = '0';
+      preview.dataset.visible = 'false';
+      start();
+    });
+  }
+</script>

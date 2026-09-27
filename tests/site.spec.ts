@@ -110,6 +110,68 @@ test('home never overflows horizontally on scaled screens', async ({ browser }) 
   }
 });
 
+test('hovering a project shows its cover next to the cursor', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'Touch devices have no hover preview');
+  await page.goto('/');
+  const preview = page.locator('[data-work-preview]');
+  const row = page.locator('[data-work-row="1"]');
+  await row.scrollIntoViewIfNeeded();
+  const box = await row.boundingBox();
+  if (!box) throw new Error('work row not rendered');
+
+  await page.mouse.move(box.x + 200, box.y + box.height / 2);
+  await expect(preview).toHaveAttribute('data-visible', 'true');
+  await expect(preview.locator('[data-cover="1"]')).toHaveCSS('opacity', '1');
+
+  await page.mouse.move(box.x + 200, box.y - 400);
+  await expect(preview).toHaveAttribute('data-visible', 'false');
+});
+
+test('case studies open with a 16:9 cover showing the project image', async ({ page }) => {
+  for (const [url, alt] of [
+    ['/work/traindia/', /Traindía/],
+    ['/work/anakleta/', /Añakleta/],
+  ] as const) {
+    await page.goto(url);
+    const hero = page.locator('article .project-cover');
+    await expect(hero).toHaveCount(1);
+    const box = await hero.boundingBox();
+    expect(Math.round(((box?.width ?? 0) / (box?.height ?? 1)) * 100) / 100).toBeCloseTo(16 / 9, 1);
+    const image = hero.getByRole('img', { name: alt });
+    await expect(image).toBeVisible();
+    await expect
+      .poll(() => image.evaluate((img: HTMLImageElement) => img.naturalWidth))
+      .toBeGreaterThan(0);
+  }
+});
+
+test('external links inside case studies open in a new tab', async ({ page }) => {
+  for (const [url, name] of [
+    ['/work/anakleta/', 'política de contenido de fans'],
+    ['/en/work/anakleta/', 'Fan Content Policy'],
+  ] as const) {
+    await page.goto(url);
+    const link = page.locator('.prose-content a', { hasText: name });
+    await expect(link).toHaveAttribute('target', '_blank');
+    await expect(link).toHaveAttribute('rel', 'noopener');
+  }
+});
+
+test('the Renterus logo swaps variant with the theme', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'The hover preview only exists with a mouse');
+  await page.goto('/');
+  const cover = page.locator('[data-cover="0"]');
+  const display = (selector: string) =>
+    cover.locator(selector).evaluate((img) => getComputedStyle(img).display);
+
+  expect(await display('img.theme-dark-only')).not.toBe('none');
+  expect(await display('img.theme-light-only')).toBe('none');
+
+  await page.getByRole('button', { name: 'Cambiar tema' }).click();
+  expect(await display('img.theme-light-only')).not.toBe('none');
+  expect(await display('img.theme-dark-only')).toBe('none');
+});
+
 test('with reduced motion the dot field still renders', async ({ browser }) => {
   const context = await browser.newContext({ reducedMotion: 'reduce' });
   const page = await context.newPage();

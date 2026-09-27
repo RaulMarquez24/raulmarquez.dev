@@ -78,29 +78,42 @@ const stack = defineCollection({
  * Case studies live in `src/content/projects/{es,en}/<slug>.mdx`; the entry id is "<locale>/<slug>".
  * `draft: true` entries are visible in dev only and never reach a production build.
  * `externalUrl` entries have no case-study page: their row links straight to that site.
+ * Covers are 16:9 everywhere (work-list preview and case-study hero), so an image is never cropped.
  */
 const projects = defineCollection({
   loader: glob({ pattern: '{es,en}/*.{md,mdx}', base: './src/content/projects' }),
-  schema: z.object({
-    title: z.string(),
-    tagline: z.string(),
-    summary: z.string(),
-    category: z.string(),
-    role: z.string(),
-    start: yearMonth,
-    end: yearMonth.nullable(),
-    stack: z.array(z.string()).default([]),
-    links: z.array(link).default([]),
-    externalUrl: z.url().optional(),
-    order: z.number(),
-    featured: z.boolean().default(false),
-    draft: z.boolean().default(false),
-    /** Generative cover: every project gets its own hue and pattern, no screenshots required. */
-    cover: z.object({
-      hue: z.number().min(0).max(360),
-      pattern: z.enum(['dots', 'grid', 'waves', 'rings']),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      tagline: z.string(),
+      summary: z.string(),
+      category: z.string(),
+      role: z.string(),
+      start: yearMonth,
+      end: yearMonth.nullable(),
+      stack: z.array(z.string()).default([]),
+      links: z.array(link).default([]),
+      externalUrl: z.url().optional(),
+      order: z.number(),
+      featured: z.boolean().default(false),
+      draft: z.boolean().default(false),
+      /**
+       * Project cover (16:9). `fit: cover` is a designed image that fills it (ideally 2400×1350);
+       * `fit: contain` is a logo centred on `background`. `srcDark`/`backgroundDark` are used with
+       * the dark theme. Without a cover, the project title is shown instead.
+       */
+      cover: z
+        .object({
+          src: image(),
+          srcDark: image().optional(),
+          alt: z.string(),
+          fit: z.enum(['cover', 'contain']).default('cover'),
+          /** Any CSS colour; shown behind the image (and while it loads). */
+          background: z.string(),
+          backgroundDark: z.string().optional(),
+        })
+        .optional(),
     }),
-  }),
 });
 
 export const collections = { profile, experience, education, principles, stack, projects };

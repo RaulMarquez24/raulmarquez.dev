@@ -8,6 +8,12 @@
   navigation: auto;
 }
 
+/* Light/dark image variants (ProjectVisual `srcDark`). Unlayered on purpose: no utility can override it. */
+[data-theme="dark"] .theme-light-only,
+[data-theme="light"] .theme-dark-only {
+  display: none;
+}
+
 @layer base {
   html {
     background-color: var(--bg);
@@ -86,6 +92,15 @@
 }
 
 @layer components {
+  /* Project cover background: the brand colour from the content, with its dark-theme variant. */
+  .project-cover {
+    background-color: var(--cover-bg, transparent);
+  }
+
+  [data-theme="dark"] .project-cover {
+    background-color: var(--cover-bg-dark, var(--cover-bg, transparent));
+  }
+
   .skip-link {
     position: absolute;
     left: var(--gutter);
@@ -164,6 +179,15 @@
 
   .prose-content li::marker {
     color: var(--fg-subtle);
+  }
+
+  /* Fine print at the end of a case study (legal notes, disclaimers). */
+  .prose-content small {
+    display: block;
+    margin-top: 3rem;
+    color: var(--fg-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.6;
   }
 
   .prose-content strong {

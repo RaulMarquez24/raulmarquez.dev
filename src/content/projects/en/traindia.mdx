@@ -15,18 +15,43 @@ links:
 order: 2
 featured: true
 cover:
-  hue: 30
-  pattern: waves
+  src: ../../../assets/projects/traindia/cover.webp
+  alt: "Traindía: the app icon and two phones showing the weekly plan and the session history"
+  fit: cover
+  background: "#4f46e5"
 ---
 
-## Context
+## Why it exists
 
-Coming soon.
+It started as a tool to track two people's workouts and grew into an app for any routine, with weekly plans, live sessions, progress, nutrition and documents. It has been in daily use since day one.
 
-## Decisions
+Making it a PWA was a product decision. It had to work the same on iOS and Android, and a native app meant going through the App Store and Google Play, with their developer licenses, plus running a user database. As a PWA it installs on any device from the browser. Each user keeps their profile on their own phone and, to compare with others, exports their data as a JSON or text file that the other person imports into a secondary profile.
 
-Coming soon.
+## Architecture
+
+HTML, CSS and JavaScript served as static files, with no framework, no build step and not a single dependency.
+
+- **Shell and router** in a single `index.html` with `app.js`, and one view per module: plan, sessions, progress, nutrition and data.
+- **Data layer** on IndexedDB, with stores for profiles, exercises, routines, sessions, progress, nutrition and documents, and versioned migrations.
+- **Service worker** that caches the files for offline use.
+- **SVG charts** drawn by hand, with no libraries.
+
+## Technical decisions
+
+**Comparing without a server.** Anyone can export what they like (one day, some sessions, the progress…) and the other person imports it into a guest profile to compare. On import, the app resolves conflicts and remaps references between records.
+
+**Offline without going stale.** The service worker serves the app's own files network-first with `cache: 'reload'`, which also bypasses the HTTP cache. Online, you always get the latest; offline, the app works the same. Files live in Cache Storage and data in IndexedDB, so an update never touches what's stored.
+
+**User data safe across versions.** The model evolves through versioned migrations, so a structural change never breaks anyone's data.
+
+**AI without a backend.** The app integrates no API. It composes the context (exercise, goal and sets done) and opens it in ChatGPT, Gemini or Claude. For nutrition plans it writes the instructions, takes the file the AI returns, and validates and previews it before saving.
+
+**Built into the phone.** It installs as an app and receives documents through *Share → Traindía*, so a PDF that arrives on WhatsApp is saved in two taps.
+
+## Deployment
+
+GitHub Pages through a custom workflow. The last step checks that the site actually serves the version just pushed. If it doesn't within five minutes, the run fails in red instead of silently leaving a half-done deploy.
 
 ## Outcome
 
-Coming soon.
+In production and in daily use since April 2026. Like everything I build on my own, it comes from automating a real need, and I publish it so anyone can use it.

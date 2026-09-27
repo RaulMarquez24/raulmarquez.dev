@@ -2,6 +2,8 @@
 import { render } from 'astro:content';
 import Badge from '../../../components/Badge.astro';
 import PageHeader from '../../../components/PageHeader.astro';
+import ProjectVisual from '../../../components/ProjectVisual.astro';
+import ProseLink from '../../../components/ProseLink.astro';
 import StackList from '../../../components/StackList.astro';
 import { defaultLocale, type Locale, locales, localizePath, t } from '../../../i18n/ui';
 import Base from '../../../layouts/Base.astro';
@@ -69,6 +71,13 @@ const facts = [
       </Fragment>
     </PageHeader>
 
+    <ProjectVisual
+      project={project}
+      variant="hero"
+      class="mt-12 rounded-lg"
+      transitionName={`cover-${slug}`}
+    />
+
     <dl class="meta mt-12 grid gap-6 border-y border-line py-6 sm:grid-cols-3">
       {
         facts.map((fact) => (
@@ -105,7 +114,7 @@ const facts = [
     }
 
     <div class="prose-content mt-8">
-      <Content />
+      <Content components={{ a: ProseLink }} />
     </div>
   </article>
 </Base>
