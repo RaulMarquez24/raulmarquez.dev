@@ -1,0 +1,169 @@
+---
+import { defaultLocale, type Locale, t } from '../i18n/ui';
+
+/**
+ * Architecture diagram for case studies, drawn from content: boxes on a grid and arrows between
+ * them. Arrows run straight between boxes that share a row or overlap in a column, and otherwise
+ * bend once through the gutter next to the target.
+ * - own: built for the project (accent outline) · data: where data lives · external: people and
+ *   third-party services (dashed).
+ * On narrow screens the figure scrolls sideways so the labels keep a readable size.
+ */
+export interface DiagramNode {
+  id: string;
+  title: string;
+  note?: string;
+  row: number;
+  col: number;
+  span?: number;
+  kind?: 'own' | 'data' | 'external';
+}
+
+export interface DiagramEdge {
+  from: string;
+  to: string;
+  /** Arrowheads at both ends. */
+  both?: boolean;
+}
+
+interface Props {
+  id: string;
+  caption: string;
+  /** What the diagram shows, for screen readers. */
+  description: string;
+  nodes: DiagramNode[];
+  edges: DiagramEdge[];
+}
+
+const { id, caption, description, nodes, edges } = Astro.props;
+const locale = (Astro.currentLocale ?? defaultLocale) as Locale;
+
+const WIDTH = 640;
+const PAD = 2;
+const GAP_X = 40;
+const GAP_Y = 56;
+const NODE_H = 60;
+const cols = Math.max(...nodes.map((node) => node.col + (node.span ?? 1) - 1));
+const rows = Math.max(...nodes.map((node) => node.row));
+const colWidth = (WIDTH - PAD * 2 - GAP_X * (cols - 1)) / cols;
+const height = PAD * 2 + rows * NODE_H + (rows - 1) * GAP_Y;
+
+const box = (node: DiagramNode) => {
+  const x = PAD + (node.col - 1) * (colWidth + GAP_X);
+  const y = PAD + (node.row - 1) * (NODE_H + GAP_Y);
+  const w = (node.span ?? 1) * colWidth + ((node.span ?? 1) - 1) * GAP_X;
+  return { x, y, w, h: NODE_H, cx: x + w / 2, cy: y + NODE_H / 2 };
+};
+const boxes = new Map(nodes.map((node) => [node.id, box(node)]));
+
+/** Stops a hair short of the box so the arrowhead tip touches its edge. */
+const TIP = 2;
+
+const paths = edges.map(({ from, to, both }) => {
+  const a = boxes.get(from);
+  const b = boxes.get(to);
+  if (!a || !b) throw new Error(`Diagram "${id}": unknown node in edge ${from} → ${to}`);
+  const start = both ? TIP : 0;
+  const right = a.x < b.x;
+  const down = a.y < b.y;
+  const overlapStart = Math.max(a.x, b.x);
+  const overlapEnd = Math.min(a.x + a.w, b.x + b.w);
+  const fromSide = right ? a.x + a.w + start : a.x - start;
+  const toSide = right ? b.x - TIP : b.x + b.w + TIP;
+  let d: string;
+  if (a.y === b.y) {
+    d = `M${fromSide} ${a.cy} H${toSide}`;
+  } else if (overlapStart < overlapEnd) {
+    const x = (overlapStart + overlapEnd) / 2;
+    const y1 = down ? a.y + a.h + start : a.y - start;
+    const y2 = down ? b.y - TIP : b.y + b.h + TIP;
+    d = `M${x} ${y1} V${y2}`;
+  } else {
+    // Out along the source's side, down the gutter beside the target, in just above its middle.
+    const gutter = right ? b.x - GAP_X / 2 : b.x + b.w + GAP_X / 2;
+    d = `M${fromSide} ${a.cy} H${gutter} V${b.cy - 14} H${toSide}`;
+  }
+  return { d, both };
+});
+
+const marker = `arrow-${id}`;
+const styles = {
+  own: { rect: 'fill-bg-elevated stroke-accent', title: 'fill-fg', dash: undefined },
+  data: { rect: 'fill-bg-elevated stroke-fg-subtle', title: 'fill-fg', dash: undefined },
+  external: { rect: 'fill-bg stroke-fg-subtle', title: 'fill-fg-muted', dash: '4 4' },
+} as const;
+const legend = (['own', 'data', 'external'] as const).filter((kind) =>
+  nodes.some((node) => (node.kind ?? 'own') === kind),
+);
+---
+
+<figure class="my-10">
+  <div class="overflow-x-auto rounded-lg border border-line p-4 sm:p-6" tabindex="0" role="region" aria-label={caption}>
+    <svg
+      viewBox={`0 0 ${WIDTH} ${height}`}
+      role="img"
+      aria-labelledby={`${id}-title ${id}-desc`}
+      class="block w-full min-w-[36rem]"
+    >
+      <title id={`${id}-title`}>{caption}</title>
+      <desc id={`${id}-desc`}>{description}</desc>
+      <defs>
+        <marker id={marker} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M1 1L9 5L1 9" fill="none" class="stroke-fg-subtle" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </marker>
+      </defs>
+      {
+        paths.map(({ d, both }) => (
+          <path
+            d={d}
+            fill="none"
+            class="stroke-fg-subtle"
+            stroke-width="1.25"
+            marker-end={`url(#${marker})`}
+            marker-start={both ? `url(#${marker})` : undefined}
+          />
+        ))
+      }
+      {
+        nodes.map((node) => {
+          const b = boxes.get(node.id);
+          const style = styles[node.kind ?? 'own'];
+          return (
+            b && (
+              <g>
+                <rect x={b.x} y={b.y} width={b.w} height={b.h} rx="8" stroke-width="1" stroke-dasharray={style.dash} class={style.rect} />
+                <text x={b.cx} y={node.note ? b.y + 24 : b.cy} text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="500" class:list={['font-sans', style.title]}>
+                  {node.title}
+                </text>
+                {node.note && (
+                  <text x={b.cx} y={b.y + 43} text-anchor="middle" dominant-baseline="central" font-size="11.5" class="fill-fg-subtle font-mono">
+                    {node.note}
+                  </text>
+                )}
+              </g>
+            )
+          );
+        })
+      }
+    </svg>
+  </div>
+  <figcaption class="meta mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-fg-subtle">
+    <span class="text-fg-muted">{caption}</span>
+    {
+      legend.map((kind) => (
+        <span class="inline-flex items-center gap-2">
+          <span
+            aria-hidden="true"
+            class:list={[
+              'inline-block h-2.5 w-4 rounded-sm border',
+              kind === 'own' && 'border-accent bg-bg-elevated',
+              kind === 'data' && 'border-fg-subtle bg-bg-elevated',
+              kind === 'external' && 'border-dashed border-fg-subtle',
+            ]}
+          />
+          {t(locale, `diagram.${kind}`)}
+        </span>
+      ))
+    }
+  </figcaption>
+</figure>

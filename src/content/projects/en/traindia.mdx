@@ -21,6 +21,8 @@ cover:
   background: "#4f46e5"
 ---
 
+import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
+
 ## Why it exists
 
 It started as a tool to track two people's workouts and grew into an app for any routine, with weekly plans, live sessions, progress, nutrition and documents. It has been in daily use since day one.
@@ -35,6 +37,27 @@ HTML, CSS and JavaScript served as static files, with no framework, no build ste
 - **Data layer** on IndexedDB, with stores for profiles, exercises, routines, sessions, progress, nutrition and documents, and versioned migrations.
 - **Service worker** that caches the files for offline use.
 - **SVG charts** drawn by hand, with no libraries.
+
+<ArchitectureDiagram
+  id="traindia-architecture"
+  caption="Traindía's architecture"
+  description="GitHub Pages serves the files, the service worker keeps them to work offline and the app stores its data in IndexedDB, on the phone itself. To compare, the data is exported to a file that another phone imports into a guest profile."
+  nodes={[
+    { id: 'pages', title: 'GitHub Pages', note: 'Static files', row: 1, col: 1, kind: 'external' },
+    { id: 'sw', title: 'Service worker', note: 'Works offline', row: 1, col: 2 },
+    { id: 'app', title: 'App', note: 'HTML, CSS and JS', row: 1, col: 3 },
+    { id: 'guest', title: 'Another phone', note: 'Guest profile', row: 2, col: 1, kind: 'external' },
+    { id: 'file', title: 'File', note: 'JSON or text', row: 2, col: 2, kind: 'data' },
+    { id: 'db', title: 'IndexedDB', note: 'Data on the phone', row: 2, col: 3, kind: 'data' },
+  ]}
+  edges={[
+    { from: 'pages', to: 'sw' },
+    { from: 'sw', to: 'app' },
+    { from: 'app', to: 'db', both: true },
+    { from: 'db', to: 'file' },
+    { from: 'file', to: 'guest' },
+  ]}
+/>
 
 ## Technical decisions
 

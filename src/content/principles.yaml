@@ -18,8 +18,26 @@
     es: La tecnología se elige por lo que resuelve para quien usa el producto, no por moda.
     en: Technology is chosen for what it solves for the people using the product, not for hype.
 
-- id: small-changes
+- id: simple-first
   order: 3
+  title:
+    es: Lo sencillo, primero
+    en: Simple first
+  body:
+    es: Antes de añadir una librería, una capa o un servicio nuevo, me pregunto si de verdad hace falta. Lo sencillo se entiende mejor, falla menos y cuesta menos mantenerlo. La complejidad tiene que ganarse su sitio.
+    en: Before adding a library, a layer or a new service, I ask whether it's really needed. Simple things are easier to understand, fail less and cost less to maintain. Complexity has to earn its place.
+
+- id: automate
+  order: 4
+  title:
+    es: Si se repite, se automatiza
+    en: If it repeats, automate it
+  body:
+    es: Cuando algo se hace a mano una y otra vez, le busco una solución que lo haga solo. Es de lo que más disfruto.
+    en: When something gets done by hand again and again, I find a way to make it run on its own. It's one of the things I enjoy most.
+
+- id: small-changes
+  order: 5
   title:
     es: Cambios pequeños, revisión seria
     en: Small changes, serious review
@@ -28,7 +46,7 @@
     en: I'd rather have many small, well-reviewed changes than one huge change nobody understands.
 
 - id: resilience
-  order: 4
+  order: 6
   title:
     es: Que un fallo no tumbe el resto
     en: One failure shouldn't take down the rest

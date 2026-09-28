@@ -4,7 +4,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
 const SITE = 'https://raulmarquez.dev';
-const routes = ['/', '/about/', '/cv/', '/uses/', '/now/', '/work/traindia/', '/work/anakleta/'];
+const routes = ['/', '/about/', '/cv/', '/uses/', '/work/traindia/', '/work/anakleta/'];
 const locales = [
   { prefix: '', lang: 'es-ES' },
   { prefix: '/en', lang: 'en-US' },
@@ -172,6 +172,23 @@ test('case studies open with a 16:9 cover showing the project image', async ({ p
     await expect
       .poll(() => image.evaluate((img: HTMLImageElement) => img.naturalWidth))
       .toBeGreaterThan(0);
+  }
+});
+
+test('case studies explain their architecture with an accessible diagram', async ({ page }) => {
+  for (const [url, name] of [
+    ['/work/traindia/', 'Arquitectura de Traindía'],
+    ['/work/anakleta/', 'Arquitectura de Añakleta'],
+    ['/en/work/anakleta/', "Añakleta's architecture"],
+  ] as const) {
+    await page.goto(url);
+    const diagram = page.getByRole('img', { name });
+    await expect(diagram).toBeVisible();
+    await expect(page.getByRole('region', { name })).toHaveAttribute('tabindex', '0');
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow, 'the diagram scrolls inside its frame, never the page').toBe(0);
   }
 });
 

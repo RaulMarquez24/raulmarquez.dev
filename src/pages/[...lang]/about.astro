@@ -1,7 +1,12 @@
 ---
+import { Picture } from 'astro:assets';
+import { render } from 'astro:content';
+import CopyEmail from '../../components/CopyEmail.astro';
 import PageHeader from '../../components/PageHeader.astro';
+import ProseLink from '../../components/ProseLink.astro';
 import { type Locale, localeStaticPaths, t } from '../../i18n/ui';
 import Base from '../../layouts/Base.astro';
+import { getPage, getProfile } from '../../lib/content';
 
 export function getStaticPaths() {
   return localeStaticPaths();
@@ -12,10 +17,42 @@ interface Props {
 }
 
 const { locale } = Astro.props;
+const profile = await getProfile();
+const page = await getPage('about', locale);
+const { Content } = await render(page);
+const { title, lead, photo } = page.data;
 ---
 
-<Base locale={locale} path="/about" title={t(locale, 'about.title')}>
+<Base locale={locale} path="/about" title={title} description={lead}>
   <div class="container-page">
-    <PageHeader title={t(locale, 'about.title')} lead={t(locale, 'placeholder')} />
+    <div class:list={['grid gap-12', photo && 'md:grid-cols-[minmax(0,1fr)_18rem] md:gap-16']}>
+      <div>
+        <PageHeader title={title} lead={lead} />
+        <div class="prose-content mt-12">
+          <Content components={{ a: ProseLink }} />
+        </div>
+      </div>
+      {
+        photo && (
+          <Picture
+            src={photo.src}
+            alt={photo.alt}
+            widths={[288, 576, 864].filter((width) => width <= photo.src.width)}
+            sizes="(min-width: 768px) 18rem, 100vw"
+            formats={['avif', 'webp']}
+            loading="eager"
+            class="rise aspect-[4/5] w-full max-w-sm rounded-lg bg-bg-elevated object-cover md:sticky md:top-8 md:mt-24 [--rise:2]"
+          />
+        )
+      }
+    </div>
+
+    <section aria-labelledby="about-contact" class="reveal mt-(--space-section)">
+      <h2 id="about-contact" class="text-heading">{t(locale, 'contact.title')}</h2>
+      <p class="mt-4 max-w-lg text-fg-muted">{t(locale, 'contact.text')}</p>
+      <div class="mt-6">
+        <CopyEmail email={profile.email} locale={locale} />
+      </div>
+    </section>
   </div>
 </Base>

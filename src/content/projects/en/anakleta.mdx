@@ -19,6 +19,8 @@ cover:
   background: "#2b4a2f"
 ---
 
+import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
+
 ## Why it exists
 
 Running an active Clash of Clans clan means keeping track of dozens of players: who attacks in war, who signs up for the league, who hasn't shown up for days. I built it for my clan. It brings all of that into a private panel for the co-leaders and hands the repetitive work to a Discord bot.
@@ -31,6 +33,29 @@ Running an active Clash of Clans clan means keeping track of dozens of players: 
 ## Architecture
 
 The panel (Next.js 16 with Server Actions, on Supabase) and the bot (Node with discord.js) are deployed separately and only talk through the database. There are no queues: GitHub Actions triggers the scheduled jobs against protected panel routes. There's a clan snapshot every six hours, war capture and reminders every hour, and daily syncs. All of them are idempotent, so re-running one never duplicates anything.
+
+<ArchitectureDiagram
+  id="anakleta-architecture"
+  caption="Añakleta's architecture"
+  description="GitHub Actions triggers the scheduled jobs against the panel, which queries the Clash of Clans API. The co-leaders use the panel and the players talk to the bot on Discord. The panel and the bot only share the Supabase database."
+  nodes={[
+    { id: 'actions', title: 'GitHub Actions', note: 'Scheduled jobs', row: 1, col: 1, kind: 'external' },
+    { id: 'leaders', title: 'Co-leaders', note: 'Use the panel', row: 1, col: 2, kind: 'external' },
+    { id: 'discord', title: 'Discord', note: 'Clan players', row: 1, col: 3, kind: 'external' },
+    { id: 'api', title: 'Game API', note: 'Clash of Clans', row: 2, col: 1, kind: 'external' },
+    { id: 'panel', title: 'Panel', note: 'Next.js', row: 2, col: 2 },
+    { id: 'bot', title: 'Bot', note: 'Node and discord.js', row: 2, col: 3 },
+    { id: 'db', title: 'Supabase', note: 'The only thing they share', row: 3, col: 2, span: 2, kind: 'data' },
+  ]}
+  edges={[
+    { from: 'actions', to: 'panel' },
+    { from: 'leaders', to: 'panel' },
+    { from: 'panel', to: 'api' },
+    { from: 'discord', to: 'bot', both: true },
+    { from: 'panel', to: 'db', both: true },
+    { from: 'bot', to: 'db', both: true },
+  ]}
+/>
 
 ## Decisions
 

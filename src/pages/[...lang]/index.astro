@@ -107,8 +107,8 @@ const workRange = firstYear && firstYear < currentYear ? `${firstYear} — ${cur
   </section>
 
   <section aria-labelledby="contact-title" class="reveal container-page mt-(--space-section)">
-    <h2 id="contact-title" class="text-heading">{t(locale, 'home.contact')}</h2>
-    <p class="mt-4 max-w-lg text-fg-muted">{t(locale, 'home.contactText')}</p>
+    <h2 id="contact-title" class="text-heading">{t(locale, 'contact.title')}</h2>
+    <p class="mt-4 max-w-lg text-fg-muted">{t(locale, 'contact.text')}</p>
     <div class="mt-6">
       <CopyEmail email={profile.email} locale={locale} />
     </div>

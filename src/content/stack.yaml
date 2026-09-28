@@ -1,7 +1,35 @@
 # Herramientas agrupadas con contexto, para /uses. Nada de muros de logos.
+# `note` es opcional: solo cuando hay un porqué que contar.
+
+- id: everyday
+  order: 1
+  group:
+    es: Día a día
+    en: Everyday
+  items:
+    - name: VS Code
+      note:
+        es: Ningún editor es tan flexible. Su comunidad y sus extensiones lo adaptan a cualquier proyecto.
+        en: No other editor is as flexible. Its community and extensions adapt it to any project.
+    - name: Claude Code
+      note:
+        es: Mi IA para programar. Para trabajar sobre código real, la mejor que he probado.
+        en: My AI for coding. On real codebases, the best I've tried.
+    - name: ChatGPT
+      note:
+        es: Dudas rápidas e imágenes.
+        en: Quick questions and images.
+    - name: Git y GitHub
+      note:
+        es: Hoy, trabajar sin control de versiones es un caos.
+        en: Working without version control today is chaos.
+    - name: Windows
+      note:
+        es: Por comodidad en el día a día.
+        en: For everyday comfort.
 
 - id: web
-  order: 1
+  order: 2
   group:
     es: Web
     en: Web
@@ -9,30 +37,47 @@
     - name: TypeScript
     - name: React
     - name: Next.js
+      note:
+        es: Apps web con servidor, con las páginas, la API y la lógica en un mismo proyecto.
+        en: Server-rendered web apps, with pages, API and logic in one project.
     - name: Astro
+      note:
+        es: Webs de contenido rápidas, con JavaScript solo donde hace falta.
+        en: Fast content sites, with JavaScript only where it's needed.
     - name: Tailwind CSS
+    - name: Docusaurus
+      note:
+        es: Documentación técnica que se lee como una web.
+        en: Technical documentation that reads like a website.
 
 - id: mobile
-  order: 2
+  order: 3
   group:
     es: Móvil
     en: Mobile
   items:
     - name: React Native
     - name: Expo
+      note:
+        es: Apps nativas para iOS y Android con un solo código.
+        en: Native iOS and Android apps from a single codebase.
 
 - id: backend
-  order: 3
+  order: 4
   group:
     es: Backend y tiempo real
     en: Backend and real-time
   items:
-    - name: PHP · CodeIgniter
     - name: Node.js · Express
+    - name: PHP · CodeIgniter
     - name: Socket.IO
+    - name: Python
+      note:
+        es: Scripts y scraping para automatizar tareas.
+        en: Scripts and scraping to automate tasks.
 
 - id: data
-  order: 4
+  order: 5
   group:
     es: Datos
     en: Data
@@ -40,16 +85,48 @@
     - name: MySQL
     - name: MongoDB
     - name: Supabase (Postgres)
+      note:
+        es: Base de datos, autenticación y tiempo real sin montar un backend propio.
+        en: Database, auth and real-time without running a backend of my own.
 
-- id: infra
-  order: 5
+- id: tooling
+  order: 6
   group:
-    es: Infraestructura y herramientas
-    en: Infrastructure and tooling
+    es: Despliegue y operación
+    en: Deployment and operations
   items:
     - name: GitHub Actions
-    - name: Docker
-    - name: Cloudflare
-    - name: Linux (Debian)
+      note:
+        es: CI, despliegues y tareas programadas.
+        en: CI, deployments and scheduled jobs.
+    - name: Vercel
+      note:
+        es: Despliegue de apps con Next.js.
+        en: Deploying Next.js apps.
+    - name: GitHub Pages
+      note:
+        es: Webs estáticas, desplegadas con cada cambio.
+        en: Static sites, deployed on every change.
     - name: Sentry
-    - name: Docusaurus
+      note:
+        es: Errores en producción con el contexto para arreglarlos rápido.
+        en: Production errors with the context to fix them fast.
+
+- id: homelab
+  order: 7
+  group:
+    es: Homelab
+    en: Homelab
+  items:
+    - name: Debian
+      note:
+        es: Donde despliego mis proyectos. En servidores no hay nada mejor, por su estabilidad y porque todo se hace desde la terminal.
+        en: Where I deploy my projects. Nothing beats it on servers, for its stability and because everything runs from the terminal.
+    - name: Docker
+      note:
+        es: Cada servicio aislado en su contenedor.
+        en: Every service isolated in its own container.
+    - name: Cloudflare
+      note:
+        es: DNS y publicación de lo que despliego en casa.
+        en: DNS and publishing for what I deploy at home.

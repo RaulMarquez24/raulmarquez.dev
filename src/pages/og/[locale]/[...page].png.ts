@@ -1,6 +1,6 @@
 import type { APIRoute, GetStaticPaths } from 'astro';
 import { type Locale, locales, pick, t } from '../../../i18n/ui';
-import { getProfile, getProjects, projectSlug } from '../../../lib/content';
+import { getPage, getProfile, getProjects, projectSlug } from '../../../lib/content';
 import { type OgCard, renderOgImage } from '../../../lib/og-card';
 
 /** One preview image per indexable page and locale. Keys match `ogImagePath()`. */
@@ -10,9 +10,10 @@ export const getStaticPaths = (async () => {
   const cardsFor = async (locale: Locale): Promise<[string, OgCard][]> => {
     const role = pick(profile.role, locale);
     const caseStudies = (await getProjects(locale)).filter((project) => !project.data.externalUrl);
+    const about = (await getPage('about', locale)).data;
     return [
       ['home', { eyebrow: `${profile.name} · ${role}`, title: pick(profile.headline, locale) }],
-      ['about', { eyebrow: profile.name, title: t(locale, 'about.title') }],
+      ['about', { eyebrow: profile.name, title: about.title, lead: about.lead }],
       [
         'cv',
         {
@@ -25,7 +26,6 @@ export const getStaticPaths = (async () => {
         'uses',
         { eyebrow: profile.name, title: t(locale, 'uses.title'), lead: t(locale, 'uses.intro') },
       ],
-      ['now', { eyebrow: profile.name, title: t(locale, 'now.title') }],
       ...caseStudies.map((project): [string, OgCard] => [
         `work/${projectSlug(project)}`,
         {

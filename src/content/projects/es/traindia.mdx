@@ -21,6 +21,8 @@ cover:
   background: "#4f46e5"
 ---
 
+import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
+
 ## Por qué existe
 
 Empezó como una herramienta para seguir los entrenamientos de dos personas y acabó siendo una aplicación para cualquier rutina, con planes semanales, sesiones en directo, progreso, nutrición y documentos. Se usa a diario desde el primer día.
@@ -35,6 +37,27 @@ HTML, CSS y JavaScript servidos como estáticos, sin framework, sin build y sin 
 - **Capa de datos** sobre IndexedDB, con almacenes para perfiles, ejercicios, rutinas, sesiones, progreso, nutrición y documentos, y migraciones versionadas.
 - **Service worker** que cachea los archivos para el uso sin conexión.
 - **Gráficas SVG** dibujadas a mano, sin librerías.
+
+<ArchitectureDiagram
+  id="traindia-architecture"
+  caption="Arquitectura de Traindía"
+  description="GitHub Pages sirve los archivos, el service worker los guarda para funcionar sin conexión y la app guarda los datos en IndexedDB, en el propio móvil. Para compararse, los datos se exportan a un archivo que otro móvil importa en un perfil de invitado."
+  nodes={[
+    { id: 'pages', title: 'GitHub Pages', note: 'Archivos estáticos', row: 1, col: 1, kind: 'external' },
+    { id: 'sw', title: 'Service worker', note: 'Funciona sin conexión', row: 1, col: 2 },
+    { id: 'app', title: 'App', note: 'HTML, CSS y JS', row: 1, col: 3 },
+    { id: 'guest', title: 'Otro móvil', note: 'Perfil de invitado', row: 2, col: 1, kind: 'external' },
+    { id: 'file', title: 'Archivo', note: 'JSON o texto', row: 2, col: 2, kind: 'data' },
+    { id: 'db', title: 'IndexedDB', note: 'Datos en el móvil', row: 2, col: 3, kind: 'data' },
+  ]}
+  edges={[
+    { from: 'pages', to: 'sw' },
+    { from: 'sw', to: 'app' },
+    { from: 'app', to: 'db', both: true },
+    { from: 'db', to: 'file' },
+    { from: 'file', to: 'guest' },
+  ]}
+/>
 
 ## Decisiones técnicas
 

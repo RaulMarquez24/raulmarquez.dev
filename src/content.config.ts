@@ -116,4 +116,19 @@ const projects = defineCollection({
     }),
 });
 
-export const collections = { profile, experience, education, principles, stack, projects };
+/**
+ * Long-form pages (/about) in `src/content/pages/{es,en}/<page>.mdx`; the entry id is "<locale>/<page>".
+ * `photo` is optional: without it the text takes the full column.
+ */
+const pages = defineCollection({
+  loader: glob({ pattern: '{es,en}/*.{md,mdx}', base: './src/content/pages' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      lead: z.string(),
+      /** Portrait, ideally 4:5 and at least 960 px wide. */
+      photo: z.object({ src: image(), alt: z.string() }).optional(),
+    }),
+});
+
+export const collections = { profile, experience, education, principles, stack, projects, pages };

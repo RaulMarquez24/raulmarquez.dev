@@ -19,6 +19,8 @@ cover:
   background: "#2b4a2f"
 ---
 
+import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
+
 ## Por qué existe
 
 Llevar un clan activo de Clash of Clans supone seguir a decenas de jugadores: quién ataca en guerra, quién se apunta a la liga, quién lleva días sin aparecer. Lo construí para mi clan. Reúne todo eso en un panel privado para los colíderes y deja el trabajo repetitivo a un bot de Discord.
@@ -31,6 +33,29 @@ Llevar un clan activo de Clash of Clans supone seguir a decenas de jugadores: qu
 ## Arquitectura
 
 El panel (Next.js 16 con Server Actions, sobre Supabase) y el bot (Node con discord.js) se despliegan por separado y solo se comunican a través de la base de datos. No hay colas: las tareas periódicas las lanza GitHub Actions contra rutas protegidas del panel. Hay una foto del clan cada seis horas, captura de guerras y recordatorios cada hora, y sincronizaciones diarias. Todas son idempotentes, así que repetir una ejecución nunca duplica nada.
+
+<ArchitectureDiagram
+  id="anakleta-architecture"
+  caption="Arquitectura de Añakleta"
+  description="GitHub Actions lanza las tareas programadas contra el panel, que consulta la API de Clash of Clans. Los colíderes usan el panel y los jugadores hablan con el bot en Discord. El panel y el bot solo comparten la base de datos de Supabase."
+  nodes={[
+    { id: 'actions', title: 'GitHub Actions', note: 'Tareas programadas', row: 1, col: 1, kind: 'external' },
+    { id: 'leaders', title: 'Colíderes', note: 'Usan el panel', row: 1, col: 2, kind: 'external' },
+    { id: 'discord', title: 'Discord', note: 'Jugadores del clan', row: 1, col: 3, kind: 'external' },
+    { id: 'api', title: 'API del juego', note: 'Clash of Clans', row: 2, col: 1, kind: 'external' },
+    { id: 'panel', title: 'Panel', note: 'Next.js', row: 2, col: 2 },
+    { id: 'bot', title: 'Bot', note: 'Node y discord.js', row: 2, col: 3 },
+    { id: 'db', title: 'Supabase', note: 'Lo único que comparten', row: 3, col: 2, span: 2, kind: 'data' },
+  ]}
+  edges={[
+    { from: 'actions', to: 'panel' },
+    { from: 'leaders', to: 'panel' },
+    { from: 'panel', to: 'api' },
+    { from: 'discord', to: 'bot', both: true },
+    { from: 'panel', to: 'db', both: true },
+    { from: 'bot', to: 'db', both: true },
+  ]}
+/>
 
 ## Decisiones
 

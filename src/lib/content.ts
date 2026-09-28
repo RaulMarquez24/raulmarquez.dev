@@ -27,6 +27,13 @@ export async function getProjects(locale: Locale): Promise<Project[]> {
   return projects.sort((a, b) => a.data.order - b.data.order);
 }
 
+/** A long-form page ("about") in the given locale. */
+export async function getPage(page: string, locale: Locale) {
+  const entry = await getEntry('pages', `${locale}/${page}`);
+  if (!entry) throw new Error(`Missing src/content/pages/${locale}/${page}.mdx`);
+  return entry;
+}
+
 export async function getExperience() {
   const entries = await getCollection('experience');
   return entries.sort((a, b) => b.data.start.localeCompare(a.data.start));

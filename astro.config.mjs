@@ -48,5 +48,9 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    // resvg (OG images, build time only) is a native module: Vite must neither pre-bundle it nor
+    // bundle it for the server, or dependency optimisation fails and the dev page never loads.
+    optimizeDeps: { exclude: ['@resvg/resvg-js'] },
+    ssr: { external: ['@resvg/resvg-js'] },
   },
 });

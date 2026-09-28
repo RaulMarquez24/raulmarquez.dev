@@ -26,11 +26,11 @@ const groups = await getStack();
         groups.map((group) => (
           <section aria-labelledby={`uses-${group.id}`} class="reveal">
             <SectionHeader id={`uses-${group.id}`} title={pick(group.data.group, locale)} />
-            <ul class="mt-4 space-y-2">
+            <ul class="mt-4 space-y-3">
               {group.data.items.map((item) => (
                 <li>
-                  {item.name}
-                  {item.note && <span class="text-fg-subtle"> — {pick(item.note, locale)}</span>}
+                  <p>{item.name}</p>
+                  {item.note && <p class="mt-0.5 text-pretty text-fg-subtle">{pick(item.note, locale)}</p>}
                 </li>
               ))}
             </ul>
