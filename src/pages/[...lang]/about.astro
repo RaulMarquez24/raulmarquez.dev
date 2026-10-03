@@ -39,7 +39,8 @@ const { title, lead, photo } = page.data;
             alt={photo.alt}
             widths={[288, 576, 864].filter((width) => width <= photo.src.width)}
             sizes="(min-width: 768px) 18rem, 100vw"
-            formats={['avif', 'webp']}
+            formats={['avif']}
+            fallbackFormat="webp"
             loading="eager"
             class="rise aspect-[4/5] w-full max-w-sm rounded-lg bg-bg-elevated object-cover md:sticky md:top-8 md:mt-24 [--rise:2]"
           />

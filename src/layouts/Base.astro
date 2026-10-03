@@ -74,7 +74,10 @@ const personSchema = {
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#0b0b0c" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#fbfaf8" media="(prefers-color-scheme: light)" />
+    <link rel="icon" href="/icons/favicon-32.png" type="image/png" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <Font cssVariable="--font-inter-tight" preload />
@@ -97,3 +100,29 @@ const personSchema = {
     <Footer locale={locale} />
   </body>
 </html>
+
+<script>
+  // Scroll reveal (styles in global.css). Blocks already on screen are shown at once; the rest
+  // settle in the first time they enter the viewport, a beat apart when several arrive together.
+  const blocks = document.querySelectorAll<HTMLElement>('.reveal');
+  if (blocks.length > 0 && matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let stagger = 0;
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const block = entry.target as HTMLElement;
+          block.style.transitionDelay = `${stagger++ * 70}ms`;
+          block.classList.add('revealed');
+          observer.unobserve(block);
+        }
+      },
+      { rootMargin: '0px 0px -8% 0px' },
+    );
+    for (const block of blocks) {
+      if (block.getBoundingClientRect().top < innerHeight) block.classList.add('revealed');
+      else observer.observe(block);
+    }
+    document.documentElement.classList.add('reveal-armed');
+  }
+</script>

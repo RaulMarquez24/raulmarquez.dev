@@ -39,6 +39,8 @@ const style = [
   .filter(Boolean)
   .join('; ');
 const loading = variant === 'hero' ? 'eager' : 'lazy';
+/** The case-study hero is usually the largest paint: fetch it first. */
+const fetchpriority = variant === 'hero' ? 'high' : undefined;
 
 /** Responsive widths up to the source size: never upscale. */
 const widthsFor = (src: ImageMetadata) => [
@@ -59,8 +61,10 @@ const widthsFor = (src: ImageMetadata) => [
           alt={cover.alt}
           widths={widthsFor(src)}
           sizes={variant === 'hero' ? '(min-width: 1152px) 1088px, 100vw' : '240px'}
-          formats={['avif', 'webp']}
+          formats={['avif']}
+          fallbackFormat="webp"
           loading={loading}
+          fetchpriority={fetchpriority}
           class:list={['absolute inset-0 size-full object-cover', theme]}
         />
       ))
@@ -83,8 +87,10 @@ const widthsFor = (src: ImageMetadata) => [
               alt={cover.alt}
               widths={widthsFor(src)}
               sizes={variant === 'hero' ? '(min-width: 1152px) 800px, 80vw' : '200px'}
-              formats={['avif', 'webp']}
+              formats={['avif']}
+              fallbackFormat="webp"
               loading={loading}
+              fetchpriority={fetchpriority}
               class:list={['h-auto max-h-full w-full object-contain', theme]}
             />
           ),

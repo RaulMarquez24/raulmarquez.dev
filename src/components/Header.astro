@@ -19,8 +19,8 @@ const nav = [
 ---
 
 <header class="container-page flex items-center justify-between gap-4 py-5 print:hidden">
-  <a href={localizePath('/', locale)} class="text-[15px] font-medium tracking-tight" aria-label={t(locale, 'nav.home')}>
-    RMU<span class="text-accent">.</span>
+  <a href={localizePath('/', locale)} class="text-[15px] font-medium tracking-tight">
+    RMU<span class="text-accent">.</span><span class="sr-only">{` ${t(locale, 'nav.home')}`}</span>
   </a>
 
   <div class="meta flex items-center gap-4 text-fg-muted sm:gap-6">
@@ -49,9 +49,8 @@ const nav = [
           hreflang={other}
           lang={other}
           class="rounded-sm px-1 uppercase transition-colors hover:text-fg"
-          aria-label={t(locale, 'lang.switchLabel')}
         >
-          {other}
+          {other}<span class="sr-only normal-case">{` · ${t(locale, 'lang.switchLabel')}`}</span>
         </a>
       )
     }

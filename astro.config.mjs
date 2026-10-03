@@ -11,10 +11,34 @@ export default defineConfig({
   // Static folders are served as /about/ — canonical, hreflang and sitemap all agree on it.
   trailingSlash: 'always',
 
+  // The whole stylesheet (~5 KB compressed) goes inside each page: no request blocks the first paint.
+  build: { inlineStylesheets: 'always' },
+
   i18n: {
     locales: ['es', 'en'],
     defaultLocale: 'es',
     routing: { prefixDefaultLocale: false },
+  },
+
+  // Content Security Policy as a <meta> on every page: only the site's own files, plus hashes of
+  // the inline scripts and styles Astro renders. Inline `style` attributes are allowed (covers set
+  // their brand colour that way); they can't run code. frame-ancestors lives in public/_headers.
+  security: {
+    csp: {
+      directives: [
+        "default-src 'self'",
+        "img-src 'self'",
+        "font-src 'self'",
+        "connect-src 'self'",
+        "manifest-src 'self'",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+      ],
+      styleDirective: {
+        resources: ["'self'", { resource: "'unsafe-inline'", kind: 'attribute' }],
+      },
+    },
   },
 
   integrations: [

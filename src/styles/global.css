@@ -34,14 +34,6 @@
   }
 }
 
-/* Scroll reveal: blocks settle into place as they enter the viewport. */
-@keyframes reveal {
-  from {
-    opacity: 0;
-    translate: 0 1.25rem;
-  }
-}
-
 /* The "active now" dot pulses a few times after the page opens, then rests. */
 @keyframes ping {
   from {
@@ -69,14 +61,21 @@
   .rise {
     animation: rise 900ms var(--ease-out-expo) calc(var(--rise, 0) * 90ms) both;
   }
+}
 
-  /* Tied to scroll position, not time: no JS, nothing hidden where unsupported. */
-  @supports (animation-timeline: view()) {
-    .reveal {
-      animation: reveal var(--ease-out-expo) both;
-      animation-timeline: view();
-      animation-range: cover 0% cover 20%;
-    }
+/* Scroll reveal: `.reveal` blocks settle into place once, the first time they enter the viewport.
+   Only armed by the script in Base.astro, so without JS (or on paper) nothing is ever hidden;
+   what's on screen at load is shown straight away, never mid-fade. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  .reveal-armed .reveal {
+    transition:
+      opacity 700ms var(--ease-out-expo),
+      translate 900ms var(--ease-out-expo);
+  }
+
+  .reveal-armed .reveal:not(.revealed) {
+    opacity: 0;
+    translate: 0 1.25rem;
   }
 }
 
@@ -146,8 +145,7 @@
     font-size: 12.5px;
   }
 
-  .rise,
-  .reveal {
+  .rise {
     animation: none !important;
   }
 

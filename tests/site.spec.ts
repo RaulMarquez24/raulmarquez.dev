@@ -14,7 +14,19 @@ for (const { prefix, lang } of locales) {
   for (const route of routes) {
     const url = `${prefix}${route}`;
 
-    test(`${url} renders with lang, canonical, one h1 and no a11y violations`, async ({ page }) => {
+    test(`${url} renders with lang, canonical, one h1, no a11y or CSP violations`, async ({
+      page,
+      browserName,
+    }) => {
+      const cspViolations: string[] = [];
+      page.on('console', (message) => {
+        if (message.text().startsWith('CSP:')) cspViolations.push(message.text());
+      });
+      await page.addInitScript(() =>
+        document.addEventListener('securitypolicyviolation', (event) =>
+          console.error(`CSP: ${event.violatedDirective} ${event.blockedURI}`),
+        ),
+      );
       // axe audits the settled page: entrance and scroll animations would catch text mid-fade.
       await page.emulateMedia({ reducedMotion: 'reduce' });
       const response = await page.goto(url);
@@ -24,8 +36,13 @@ for (const { prefix, lang } of locales) {
       await expect(page.locator('h1')).toHaveCount(1);
       expect(await response?.text(), 'internal TODO notes must not ship').not.toContain('TODO(');
 
-      const { violations } = await new AxeBuilder({ page }).analyze();
-      expect(violations).toEqual([]);
+      // Playwright's WebKit can't parse OKLCH colours in the canvas axe measures contrast with,
+      // so it reads all text as black. The page renders fine there; axe runs on the other engines.
+      if (browserName !== 'webkit') {
+        const { violations } = await new AxeBuilder({ page }).analyze();
+        expect(violations).toEqual([]);
+      }
+      expect(cspViolations, 'everything the page loads is allowed by its CSP').toEqual([]);
     });
 
     test(`${url} has its own 1200×630 social preview image`, async ({ page, request }) => {
@@ -43,6 +60,23 @@ for (const { prefix, lang } of locales) {
     });
   }
 }
+
+test('pages declare icons and a manifest that exist', async ({ page, request }) => {
+  await page.goto('/');
+  const hrefs = await page
+    .locator('link[rel="icon"], link[rel="apple-touch-icon"], link[rel="manifest"]')
+    .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''));
+  expect(hrefs).toHaveLength(4);
+  for (const href of hrefs) expect((await request.get(href)).status(), href).toBe(200);
+
+  const apple = await (await request.get('/apple-touch-icon.png')).body();
+  expect([apple.readUInt32BE(16), apple.readUInt32BE(20)]).toEqual([180, 180]);
+
+  const manifest = await (await request.get('/manifest.webmanifest')).json();
+  for (const icon of manifest.icons) {
+    expect((await request.get(icon.src)).status(), icon.src).toBe(200);
+  }
+});
 
 test('the CV links to a PDF printed from it, in each language', async ({ page, request }) => {
   for (const prefix of ['', '/en']) {
@@ -219,8 +253,13 @@ test('the Renterus logo swaps variant with the theme', async ({ page, isMobile }
   expect(await display('img.theme-dark-only')).toBe('none');
 });
 
-test('opening a project from its preview morphs only that cover', async ({ page, isMobile }) => {
+test('opening a project from its preview morphs only that cover', async ({
+  page,
+  isMobile,
+  browserName,
+}) => {
   test.skip(isMobile, 'The hover preview only exists with a mouse');
+  test.skip(browserName === 'firefox', 'No cross-document view transitions yet: it just navigates');
   // Logs the view-transition names on the page once loaded, and again at the moment of leaving
   // it (listening from `load` on, so the page's own pageswap handlers have already run).
   await page.addInitScript(() => {
@@ -262,12 +301,16 @@ test('with motion, openings and scroll reveals settle fully visible', async ({ p
   await expect(contact).toHaveCSS('opacity', '1');
 });
 
-test('the contact email can be copied, with a confirmation', async ({ page }) => {
-  await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+test('the contact email can be copied, with a confirmation', async ({ page, browserName }) => {
+  // Reading the clipboard back needs a permission only Chromium lets tests grant.
+  const canRead = browserName === 'chromium';
+  if (canRead) await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.goto('/');
   await page.getByRole('button', { name: 'Copiar el email' }).click();
   await expect(page.getByRole('status')).toHaveText('Copiado');
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('me@raulmarquez.dev');
+  if (canRead) {
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('me@raulmarquez.dev');
+  }
 });
 
 test('with reduced motion the dot field still renders', async ({ browser }) => {
@@ -298,7 +341,10 @@ test('language switch opens the same page in the other locale', async ({ page })
   await expect(page.locator('html')).toHaveAttribute('lang', 'es-ES');
 });
 
-test('theme is dark by default, toggles, persists and stays accessible', async ({ page }) => {
+test('theme is dark by default, toggles, persists and stays accessible', async ({
+  page,
+  browserName,
+}) => {
   await page.goto('/');
   const html = page.locator('html');
   await expect(html).toHaveAttribute('data-theme', 'dark');
@@ -313,8 +359,10 @@ test('theme is dark by default, toggles, persists and stays accessible', async (
   await page.reload();
   await expect(html).toHaveAttribute('data-theme', 'light');
 
-  const { violations } = await new AxeBuilder({ page }).analyze();
-  expect(violations).toEqual([]);
+  if (browserName !== 'webkit') {
+    const { violations } = await new AxeBuilder({ page }).analyze();
+    expect(violations).toEqual([]);
+  }
 });
 
 test('home exposes structured data for the person', async ({ page }) => {

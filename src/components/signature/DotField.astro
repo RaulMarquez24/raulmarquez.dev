@@ -24,7 +24,10 @@
 <script>
   import { mountDotField } from './dot-field';
 
-  for (const canvas of document.querySelectorAll<HTMLCanvasElement>('canvas[data-dot-field]')) {
-    mountDotField(canvas);
-  }
+  // After the first frame: measuring the hero before then would force an extra layout on load.
+  requestAnimationFrame(() => {
+    for (const canvas of document.querySelectorAll<HTMLCanvasElement>('canvas[data-dot-field]')) {
+      mountDotField(canvas);
+    }
+  });
 </script>
