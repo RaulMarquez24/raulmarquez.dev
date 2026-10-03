@@ -2,6 +2,8 @@
 
 Portfolio de Raúl Márquez, Tech Lead & Lead Developer en Renterus → **[raulmarquez.dev](https://raulmarquez.dev)**
 
+[![Portada de raulmarquez.dev](.github/preview.webp)](https://raulmarquez.dev)
+
 Hecho para durar: el contenido vive en ficheros de datos validados, el diseño en tokens y el resultado es HTML estático en la red de Cloudflare. Actualizarlo es editar datos, no código.
 
 ## Stack
