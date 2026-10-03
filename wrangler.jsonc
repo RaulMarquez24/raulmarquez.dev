@@ -11,7 +11,11 @@
     "html_handling": "auto-trailing-slash"
   },
   "workers_dev": true,
-  "preview_urls": true
-  // Custom domain, added at launch (subdomains such as traindia.raulmarquez.dev are unaffected):
-  // "routes": [{ "pattern": "raulmarquez.dev", "custom_domain": true }],
+  "preview_urls": true,
+  // Custom domains: Cloudflare creates their DNS records and certificates. Other subdomains
+  // (traindia, the homelab tunnels) are untouched. www redirects to the root with a Redirect Rule.
+  "routes": [
+    { "pattern": "raulmarquez.dev", "custom_domain": true },
+    { "pattern": "www.raulmarquez.dev", "custom_domain": true }
+  ]
 }
