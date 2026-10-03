@@ -24,6 +24,8 @@ const profile = defineCollection({
     intro: localized,
     email: z.email(),
     links: z.array(link),
+    /** Public repository of this site, linked from the footer. */
+    source: z.url().optional(),
   }),
 });
 

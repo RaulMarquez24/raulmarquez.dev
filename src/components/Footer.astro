@@ -25,6 +25,15 @@ const year = new Date().getFullYear();
           </li>
         ))
       }
+      {
+        profile.source && (
+          <li>
+            <a class="transition-colors hover:text-fg" href={profile.source} rel="noopener" target="_blank">
+              {t(locale, 'footer.source')}
+            </a>
+          </li>
+        )
+      }
     </ul>
   </div>
 </footer>

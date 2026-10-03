@@ -365,6 +365,18 @@ test('theme is dark by default, toggles, persists and stays accessible', async (
   }
 });
 
+test('the footer links to the source of this site', async ({ page }) => {
+  for (const [url, name] of [
+    ['/', 'Código de esta web'],
+    ['/en/', 'Source of this site'],
+  ] as const) {
+    await page.goto(url);
+    const link = page.locator('footer').getByRole('link', { name });
+    await expect(link).toHaveAttribute('href', 'https://github.com/RaulMarquez24/raulmarquez.dev');
+    await expect(link).toHaveAttribute('target', '_blank');
+  }
+});
+
 test('home exposes structured data for the person', async ({ page }) => {
   await page.goto('/');
   const json = await page.locator('script[type="application/ld+json"]').textContent();
