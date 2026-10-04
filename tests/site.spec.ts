@@ -72,6 +72,11 @@ test('pages declare icons and a manifest that exist', async ({ page, request }) 
   const apple = await (await request.get('/apple-touch-icon.png')).body();
   expect([apple.readUInt32BE(16), apple.readUInt32BE(20)]).toEqual([180, 180]);
 
+  // /favicon.ico: an ICO header with 32 and 48 px images (Google wants a multiple of 48).
+  const ico = await (await request.get('/favicon.ico')).body();
+  expect([ico.readUInt16LE(2), ico.readUInt16LE(4)]).toEqual([1, 2]);
+  expect([ico[6], ico[22]]).toEqual([32, 48]);
+
   const manifest = await (await request.get('/manifest.webmanifest')).json();
   for (const icon of manifest.icons) {
     expect((await request.get(icon.src)).status(), icon.src).toBe(200);
